@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Volunteer dashboard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#B4410F}a:hover{color:#8A300A}
+</style>
+</helmet>
+<div style="width: 390px; height: 1040px; box-sizing: border-box; background: #F6F4EF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1C1917; display: flex; flex-direction: column">
+<main style="flex: 1; display: flex; flex-direction: column; gap: 20px; padding: 24px 20px 20px; overflow: hidden">
+<header style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<p style="margin: 0; font-size: 14px; color: #57534E">Welcome back,</p>
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Anjali Patel</h1>
+<div style="display: flex; gap: 6px">
+<span style="font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E7E2DA">Edison</span>
+<span style="font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E7E2DA">Yuvti</span>
+</div>
+</div>
+<div aria-hidden="true" style="width: 48px; height: 48px; border-radius: 50%; background: #FCEBDD; color: #8A300A; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 17px">AP</div>
+</header>
+
+<section aria-label="Current seva session" style="border-radius: 22px; padding: 20px; display: flex; flex-direction: column; gap: 16px; background: #1C1917; color: #FFFFFF">
+<sc-if value="{{active}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #BBF7D0"><span style="width: 9px; height: 9px; border-radius: 50%; background: #4ADE80"></span>On seva now</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<p style="margin: 0; font-size: 44px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums">2:18:45</p>
+<p style="margin: 0; font-size: 14px; color: #D6D3D1">Started today at 9:12 AM · Edison</p>
+</div>
+<button type="button" onClick="{{toggle}}" style="height: 56px; border: 0; border-radius: 16px; background: #FFFFFF; color: #1C1917; font: inherit; font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>End Seva · Clock out
+</button>
+</div>
+</sc-if>
+<sc-if value="{{inactive}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #D6D3D1"><span style="width: 9px; height: 9px; border-radius: 50%; background: #A8A29E"></span>Not on seva</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<p style="margin: 0; font-size: 22px; font-weight: 800">Ready to begin seva?</p>
+<p style="margin: 0; font-size: 14px; color: #D6D3D1">Your start time is recorded by the server.</p>
+</div>
+<button type="button" onClick="{{toggle}}" style="height: 56px; border: 0; border-radius: 16px; background: {{accent}}; color: #FFFFFF; font: inherit; font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"></path></svg>Start Seva · Clock in
+</button>
+</div>
+</sc-if>
+</section>
+
+<section aria-label="Seva totals" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div style="background: #FFFFFF; border: 1px solid #E7E2DA; border-radius: 16px; padding: 14px 12px; display: flex; flex-direction: column; gap: 4px">
+<p style="margin: 0; font-size: 12px; font-weight: 600; color: #57534E">Today</p>
+<p style="margin: 0; font-size: 18px; font-weight: 800">2h 18m</p>
+<p style="margin: 0; font-size: 12px; color: #57534E">2.3 h</p>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E7E2DA; border-radius: 16px; padding: 14px 12px; display: flex; flex-direction: column; gap: 4px">
+<p style="margin: 0; font-size: 12px; font-weight: 600; color: #57534E">October</p>
+<p style="margin: 0; font-size: 18px; font-weight: 800">24h 30m</p>
+<p style="margin: 0; font-size: 12px; color: #57534E">24.5 h</p>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E7E2DA; border-radius: 16px; padding: 14px 12px; display: flex; flex-direction: column; gap: 4px">
+<p style="margin: 0; font-size: 12px; font-weight: 600; color: #57534E">Lifetime</p>
+<p style="margin: 0; font-size: 18px; font-weight: 800">186h 45m</p>
+<p style="margin: 0; font-size: 12px; color: #57534E">186.75 h</p>
+</div>
+</section>
+
+<section aria-label="Review hours by date" style="background: #FFFFFF; border: 1px solid #E7E2DA; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<h2 style="margin: 0; font-size: 15px; font-weight: 700">Hours in a date range</h2>
+<a href="History.dc.html" style="font-size: 13px; font-weight: 700; padding: 8px 0">Details</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<label for="d1" style="font-size: 12px; font-weight: 600; color: #57534E">From</label>
+<input id="d1" type="date" style="height: 44px; border: 1.5px solid #D6D0C6; border-radius: 12px; padding: 0 10px; font: inherit; font-size: 14px; background: #FFFFFF">
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<label for="d2" style="font-size: 12px; font-weight: 600; color: #57534E">To</label>
+<input id="d2" type="date" style="height: 44px; border: 1.5px solid #D6D0C6; border-radius: 12px; padding: 0 10px; font: inherit; font-size: 14px; background: #FFFFFF">
+</div>
+</div>
+<p style="margin: 0; font-size: 14px; color: #57534E">Oct 1 – Oct 23 · <strong style="color: #1C1917">24 hours 30 minutes</strong> (24.5 h)</p>
+</section>
+
+<section aria-label="Recent sessions" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<h2 style="margin: 0; font-size: 17px; font-weight: 800">Recent sessions</h2>
+<a href="History.dc.html" style="font-size: 13px; font-weight: 700; padding: 8px 0">See all</a>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E7E2DA; border-radius: 16px; display: flex; flex-direction: column">
+<sc-for list="{{recent}}" as="s" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 12px; padding: 14px; border-bottom: 1px solid #F0ECE5">
+<div style="width: 44px; height: 44px; border-radius: 12px; background: #F6F4EF; display: flex; flex-direction: column; align-items: center; justify-content: center">
+<span style="font-size: 10px; font-weight: 700; color: #57534E">{{s.mon}}</span>
+<span style="font-size: 16px; font-weight: 800; line-height: 1">{{s.day}}</span>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+<p style="margin: 0; font-size: 14px; font-weight: 700">{{s.range}}</p>
+<p style="margin: 0; font-size: 12px; color: #57534E">{{s.dur}}</p>
+</div>
+<span style="font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: {{s.bg}}; color: {{s.fg}}">{{s.status}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+</main>
+
+<nav aria-label="Main" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #FFFFFF; border-top: 1px solid #E7E2DA; padding: 8px 8px 20px">
+<a href="Dashboard.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; font-size: 12px; font-weight: 700; text-decoration: none; color: {{accent}}">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>Home</a>
+<a href="History.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; font-size: 12px; font-weight: 600; text-decoration: none; color: #57534E">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>History</a>
+<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; font-size: 12px; font-weight: 600; text-decoration: none; color: #57534E">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h11"></path></svg>Sign out</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#B4410F","options":["#B4410F","#9F1239","#0F5E5A","#1E3A8A"]},"startActive":{"editor":"boolean","default":true},"$preview":{"width":390,"height":1040}}'>
+class Component extends DCLogic {
+renderVals() {
+const active = this.state.active ?? (this.props.startActive ?? true);
+const done = { bg: '#DCFCE7', fg: '#166534', status: 'Completed' };
+return {
+accent: this.props.accent ?? '#B4410F',
+active: active,
+inactive: !active,
+toggle: () => this.setState({ active: !active }),
+recent: [
+{ mon: 'OCT', day: '22', range: '6:30 PM – 9:45 PM', dur: '3 hours 15 minutes', ...done },
+{ mon: 'OCT', day: '20', range: '10:00 AM – 1:30 PM', dur: '3 hours 30 minutes', ...done },
+{ mon: 'OCT', day: '18', range: '8:15 PM – 12:45 AM', dur: '4 hours 30 minutes · crosses midnight', ...done },
+{ mon: 'OCT', day: '16', range: '5:00 PM – —', dur: 'Missing clock-out', bg: '#FEF3C7', fg: '#92400E', status: 'Flagged' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

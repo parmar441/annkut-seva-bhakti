@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin review and corrections</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#B4410F}a:hover{color:#8A300A}
+textarea::placeholder{color:#78716C}
+</style>
+</helmet>
+<div style="width: 390px; height: 1120px; box-sizing: border-box; background: #F6F4EF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1C1917; display: flex; flex-direction: column">
+<main style="flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 24px 20px 16px; overflow: hidden">
+<header style="display: flex; flex-direction: column; gap: 4px">
+<span style="align-self: flex-start; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 6px; background: #1C1917; color: #FFFFFF">ADMIN</span>
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Needs review</h1>
+</header>
+
+<div role="tablist" aria-label="Issue type" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); background: #F0ECE5; border-radius: 12px; padding: 4px; gap: 4px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="2">
+<button type="button" role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="height: 42px; border: 0; border-radius: 9px; background: {{t.bg}}; color: #1C1917; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer">{{t.label}}</button>
+</sc-for>
+</div>
+
+<section aria-label="Flagged sessions" style="display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{items}}" as="i" hint-placeholder-count="3">
+<article style="background: #FFFFFF; border: 1.5px solid {{i.border}}; border-radius: 16px; padding: 14px; display: flex; align-items: center; gap: 12px">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+<h2 style="margin: 0; font-size: 15px; font-weight: 800">{{i.name}}</h2>
+<p style="margin: 0; font-size: 12px; color: #57534E">{{i.meta}}</p>
+<p style="margin: 0; font-size: 13px; font-weight: 600; color: #92400E">{{i.issue}}</p>
+</div>
+<button type="button" style="height: 44px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #D6D0C6; background: #FFFFFF; font: inherit; font-size: 13px; font-weight: 700; color: #1C1917; cursor: pointer">Correct</button>
+</article>
+</sc-for>
+</section>
+
+<section aria-label="Correct session" style="background: #FFFFFF; border: 1px solid #E7E2DA; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 8px 24px rgba(28, 25, 23, 0.08)">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 800">Correct: Riya Mehta</h2>
+<p style="margin: 0; font-size: 12px; color: #57534E">Passaic · Sahid · Tue, Oct 21</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="background: #F6F4EF; border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px">
+<p style="margin: 0; font-size: 11px; font-weight: 700; color: #57534E">ORIGINAL</p>
+<p style="margin: 0; font-size: 14px; font-weight: 700">6:00 PM – —</p>
+<p style="margin: 0; font-size: 12px; color: #57534E">No clock-out</p>
+</div>
+<div style="background: #DCFCE7; border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px">
+<p style="margin: 0; font-size: 11px; font-weight: 700; color: #166534">UPDATED</p>
+<p style="margin: 0; font-size: 14px; font-weight: 700">6:00 PM – 9:30 PM</p>
+<p style="margin: 0; font-size: 12px; color: #166534">3 hours 30 minutes</p>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 4px"><label for="cd" style="font-size: 12px; font-weight: 600; color: #57534E">Clock-out date</label><input id="cd" type="date" style="height: 44px; border: 1.5px solid #D6D0C6; border-radius: 12px; padding: 0 10px; font: inherit; font-size: 14px"></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><label for="ct" style="font-size: 12px; font-weight: 600; color: #57534E">Clock-out time</label><input id="ct" type="time" style="height: 44px; border: 1.5px solid #D6D0C6; border-radius: 12px; padding: 0 10px; font: inherit; font-size: 14px"></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<label for="ar" style="font-size: 12px; font-weight: 600; color: #57534E">Reason (saved to audit log)</label>
+<textarea id="ar" rows="2" placeholder="e.g. Confirmed with Mandal coordinator" style="border: 1.5px solid #D6D0C6; border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 14px; resize: none"></textarea>
+</div>
+<button type="button" style="height: 50px; border-radius: 14px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer">Save correction</button>
+</section>
+
+<section aria-label="Audit log" style="display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-size: 15px; font-weight: 800">Recent audit log</h2>
+<div style="background: #FFFFFF; border: 1px solid #E7E2DA; border-radius: 16px; display: flex; flex-direction: column">
+<sc-for list="{{audit}}" as="a" hint-placeholder-count="2">
+<div style="padding: 12px 14px; border-bottom: 1px solid #F0ECE5; display: flex; flex-direction: column; gap: 3px">
+<p style="margin: 0; font-size: 13px; font-weight: 700">{{a.what}}</p>
+<p style="margin: 0; font-size: 12px; color: #57534E">{{a.change}}</p>
+<p style="margin: 0; font-size: 12px; color: #57534E">{{a.who}}</p>
+</div>
+</sc-for>
+</div>
+</section>
+</main>
+
+<nav aria-label="Admin" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: #FFFFFF; border-top: 1px solid #E7E2DA; padding: 8px 4px 20px">
+<a href="AdminOverview.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; font-size: 12px; font-weight: 600; text-decoration: none; color: #57534E">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"></path></svg>Overview</a>
+<a href="AdminReports.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; font-size: 12px; font-weight: 600; text-decoration: none; color: #57534E">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 8v6l-4 2v-8z"></path></svg>Reports</a>
+<a href="AdminReview.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; font-size: 12px; font-weight: 700; text-decoration: none; color: {{accent}}">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"></path></svg>Review</a>
+<a href="AdminUsers.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; font-size: 12px; font-weight: 600; text-decoration: none; color: #57534E">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2 20c1-3.5 3.8-5.5 7-5.5s6 2 7 5.5"></path><path d="M16 4.5a3.5 3.5 0 0 1 0 7M22 20c-.6-2.4-2-4-4-4.8"></path></svg>Volunteers</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#B4410F","options":["#B4410F","#9F1239","#0F5E5A","#1E3A8A"]},"$preview":{"width":390,"height":1120}}'>
+class Component extends DCLogic {
+renderVals() {
+const tab = this.state.tab ?? 'missing';
+const missing = [
+{ name: 'Riya Mehta', meta: 'Passaic · Sahid · Oct 21', issue: 'Clocked in 6:00 PM, no clock-out', border: '#B4410F' },
+{ name: 'Anjali Patel', meta: 'Edison · Yuvti · Oct 16', issue: 'Clocked in 5:00 PM, no clock-out', border: '#E7E2DA' },
+{ name: 'Nisha Joshi', meta: 'Clifton · Kishori · Oct 14', issue: 'Open for 31 hours', border: '#E7E2DA' }
+];
+const overlaps = [
+{ name: 'Meera Shah', meta: 'Jersey City · Kishori · Oct 22', issue: '4:00–8:30 PM overlaps 7:45–9:00 PM', border: '#E7E2DA' },
+{ name: 'Pooja Trivedi', meta: 'Parsippany · Yuvti · Oct 19', issue: '9:00 AM–1:00 PM overlaps 12:30–2:00 PM', border: '#E7E2DA' }
+];
+return {
+accent: this.props.accent ?? '#B4410F',
+tabs: [['missing', 'Missing clock-out (4)'], ['overlap', 'Overlaps (3)']].map(([id, label]) => ({
+label: label, on: tab === id ? 'true' : 'false', bg: tab === id ? '#FFFFFF' : 'transparent', pick: () => this.setState({ tab: id })
+})),
+items: tab === 'missing' ? missing : overlaps,
+audit: [
+{ what: 'Kavita Desai · Oct 20 session', change: 'Clock-out 1:15 PM → 12:45 PM', who: 'Admin: organizer.edison · Oct 21, 9:04 AM' },
+{ what: 'Meera Shah · Oct 18 session', change: 'Clock-in 3:30 PM → 4:00 PM', who: 'Admin: organizer.jc · Oct 19, 7:41 PM' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Create volunteer account</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#B4410F}a:hover{color:#8A300A}
+input::placeholder{color:#78716C}
+</style>
+</helmet>
+<div style="width: 390px; height: 1040px; box-sizing: border-box; background: #F6F4EF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1C1917; display: flex; flex-direction: column">
+<header style="display: flex; align-items: center; gap: 8px; padding: 16px 12px 8px">
+<a href="Main.dc.html" aria-label="Back to sign in" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #1C1917; border-radius: 12px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</a>
+<h1 style="margin: 0; font-size: 20px; font-weight: 800">Create account</h1>
+</header>
+<p style="margin: 0; padding: 0 24px 16px; font-size: 14px; color: #57534E">Register once to start logging your seva hours.</p>
+<form style="display: flex; flex-direction: column; gap: 16px; padding: 0 24px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="fn" style="font-size: 14px; font-weight: 600">Full name</label>
+<input id="fn" type="text" autocomplete="name" placeholder="e.g. Anjali Patel" style="height: 50px; border: 1.5px solid #D6D0C6; border-radius: 14px; padding: 0 16px; font: inherit; font-size: 16px; background: #FFFFFF">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="un" style="font-size: 14px; font-weight: 600">Username</label>
+<input id="un" type="text" autocomplete="username" placeholder="Choose a unique username" style="height: 50px; border: 1.5px solid #D6D0C6; border-radius: 14px; padding: 0 16px; font: inherit; font-size: 16px; background: #FFFFFF">
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="mn" style="font-size: 14px; font-weight: 600">Mandal name</label>
+<select id="mn" style="height: 50px; border: 1.5px solid #D6D0C6; border-radius: 14px; padding: 0 12px; font: inherit; font-size: 15px; background: #FFFFFF; color: #1C1917">
+<option>Select</option>
+<option>Edison</option>
+<option>Jersey City</option>
+<option>Clifton</option>
+<option>Parsippany</option>
+<option>Passaic</option>
+<option>Pennsylvania</option>
+</select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="mt" style="font-size: 14px; font-weight: 600">Mandal type</label>
+<select id="mt" style="height: 50px; border: 1.5px solid #D6D0C6; border-radius: 14px; padding: 0 12px; font: inherit; font-size: 15px; background: #FFFFFF; color: #1C1917">
+<option>Select</option>
+<option>Kishori</option>
+<option>Yuvti</option>
+<option>Sahid</option>
+<option>Sahradayi</option>
+</select>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="pw" style="font-size: 14px; font-weight: 600">Password</label>
+<input id="pw" type="password" autocomplete="new-password" placeholder="At least 12 characters" style="height: 50px; border: 1.5px solid #D6D0C6; border-radius: 14px; padding: 0 16px; font: inherit; font-size: 16px; background: #FFFFFF">
+<div style="display: flex; gap: 4px; margin-top: 4px" aria-hidden="true">
+<div style="flex: 1; height: 5px; border-radius: 3px; background: #166534"></div>
+<div style="flex: 1; height: 5px; border-radius: 3px; background: #166534"></div>
+<div style="flex: 1; height: 5px; border-radius: 3px; background: #166534"></div>
+<div style="flex: 1; height: 5px; border-radius: 3px; background: #E7E2DA"></div>
+</div>
+<ul style="list-style: none; margin: 6px 0 0; padding: 12px 14px; background: #FFFFFF; border: 1px solid #E7E2DA; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 13px">
+<li style="display: flex; align-items: center; gap: 8px; color: #166534"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>12 or more characters</li>
+<li style="display: flex; align-items: center; gap: 8px; color: #166534"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>Uppercase and lowercase letters</li>
+<li style="display: flex; align-items: center; gap: 8px; color: #166534"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>At least one number</li>
+<li style="display: flex; align-items: center; gap: 8px; color: #57534E"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"></circle></svg>At least one special character (!@#$…)</li>
+<li style="display: flex; align-items: center; gap: 8px; color: #57534E"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"></circle></svg>Not a commonly used password</li>
+</ul>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="cpw" style="font-size: 14px; font-weight: 600">Confirm password</label>
+<input id="cpw" type="password" autocomplete="new-password" aria-invalid="true" aria-describedby="cpw-err" placeholder="Re-enter password" style="height: 50px; border: 1.5px solid #B91C1C; border-radius: 14px; padding: 0 16px; font: inherit; font-size: 16px; background: #FFFFFF">
+<p id="cpw-err" style="margin: 0; font-size: 13px; color: #B91C1C; display: flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.5"></path></svg>Passwords do not match</p>
+</div>
+<a href="Dashboard.dc.html" style="margin-top: 8px; height: 54px; border-radius: 14px; background: {{accent}}; color: #FFFFFF; font-size: 16px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center">Create account</a>
+<p style="margin: 0; text-align: center; font-size: 14px; color: #57534E">Already registered? <a href="Main.dc.html" style="font-weight: 700">Sign in</a></p>
+</form>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#B4410F","options":["#B4410F","#9F1239","#0F5E5A","#1E3A8A"]},"$preview":{"width":390,"height":1040}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#B4410F' };
+}
+}
+</script>
+</body>
+</html>

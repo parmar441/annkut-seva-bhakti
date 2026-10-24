@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin volunteers</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#B4410F}a:hover{color:#8A300A}
+input::placeholder{color:#78716C}
+</style>
+</helmet>
+<div style="width: 390px; height: 1040px; box-sizing: border-box; background: #F6F4EF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1C1917; display: flex; flex-direction: column">
+<main style="flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 24px 20px 16px; overflow: hidden">
+<header style="display: flex; align-items: flex-end; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="align-self: flex-start; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 6px; background: #1C1917; color: #FFFFFF">ADMIN</span>
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Volunteers</h1>
+</div>
+<p style="margin: 0; font-size: 13px; color: #57534E">[148] registered</p>
+</header>
+
+<div style="display: flex; flex-direction: column; gap: 4px">
+<label for="vs" style="font-size: 12px; font-weight: 600; color: #57534E">Search by name or username</label>
+<input id="vs" type="search" placeholder="Search volunteers" style="height: 48px; border: 1.5px solid #D6D0C6; border-radius: 14px; padding: 0 14px; font: inherit; font-size: 15px; background: #FFFFFF">
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 4px"><label for="vm" style="font-size: 12px; font-weight: 600; color: #57534E">Mandal</label>
+<select id="vm" style="height: 44px; border: 1.5px solid #D6D0C6; border-radius: 12px; padding: 0 8px; font: inherit; font-size: 14px; background: #FFFFFF; color: #1C1917"><option>All Mandals</option><option>Edison</option><option>Jersey City</option><option>Clifton</option><option>Parsippany</option><option>Passaic</option><option>Pennsylvania</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><label for="vt" style="font-size: 12px; font-weight: 600; color: #57534E">Type</label>
+<select id="vt" style="height: 44px; border: 1.5px solid #D6D0C6; border-radius: 12px; padding: 0 8px; font: inherit; font-size: 14px; background: #FFFFFF; color: #1C1917"><option>All Types</option><option>Kishori</option><option>Yuvti</option><option>Sahid</option><option>Sahradayi</option></select></div>
+</div>
+
+<section aria-label="Volunteer list" style="display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{people}}" as="p" hint-placeholder-count="5">
+<article style="background: #FFFFFF; border: 1px solid #E7E2DA; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px; opacity: {{p.opacity}}">
+<div style="display: flex; align-items: center; gap: 12px">
+<div aria-hidden="true" style="width: 44px; height: 44px; border-radius: 50%; background: #FCEBDD; color: #8A300A; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 15px; flex: none">{{p.ini}}</div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<h2 style="margin: 0; font-size: 15px; font-weight: 800">{{p.name}}</h2>
+<p style="margin: 0; font-size: 12px; color: #57534E">@{{p.user}} · {{p.mandal}} · {{p.type}}</p>
+</div>
+<button type="button" role="switch" aria-checked="{{p.on}}" aria-label="{{p.switchLabel}}" onClick="{{p.toggle}}" style="width: 52px; height: 44px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none">
+<span style="width: 46px; height: 28px; border-radius: 999px; background: {{p.track}}; display: flex; align-items: center; padding: 3px; box-sizing: border-box; justify-content: {{p.justify}}"><span style="width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25)"></span></span>
+</button>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #F0ECE5; padding-top: 10px">
+<p style="margin: 0; font-size: 13px; color: #57534E"><strong style="color: #1C1917">{{p.hrs}}</strong> lifetime · {{p.state}}</p>
+<a href="History.dc.html" style="font-size: 13px; font-weight: 700; padding: 10px 0">View history</a>
+</div>
+</article>
+</sc-for>
+</section>
+</main>
+
+<nav aria-label="Admin" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: #FFFFFF; border-top: 1px solid #E7E2DA; padding: 8px 4px 20px">
+<a href="AdminOverview.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; font-size: 12px; font-weight: 600; text-decoration: none; color: #57534E">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"></path></svg>Overview</a>
+<a href="AdminReports.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; font-size: 12px; font-weight: 600; text-decoration: none; color: #57534E">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 8v6l-4 2v-8z"></path></svg>Reports</a>
+<a href="AdminReview.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; font-size: 12px; font-weight: 600; text-decoration: none; color: #57534E">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"></path></svg>Review</a>
+<a href="AdminUsers.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; font-size: 12px; font-weight: 700; text-decoration: none; color: {{accent}}">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2 20c1-3.5 3.8-5.5 7-5.5s6 2 7 5.5"></path><path d="M16 4.5a3.5 3.5 0 0 1 0 7M22 20c-.6-2.4-2-4-4-4.8"></path></svg>Volunteers</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#B4410F","options":["#B4410F","#9F1239","#0F5E5A","#1E3A8A"]},"$preview":{"width":390,"height":1040}}'>
+class Component extends DCLogic {
+renderVals() {
+const off = this.state.off ?? { kdesai: false, nisha: true };
+const base = [
+{ ini: 'AP', name: 'Anjali Patel', user: 'anjali.p', mandal: 'Edison', type: 'Yuvti', hrs: '186h 45m' },
+{ ini: 'MS', name: 'Meera Shah', user: 'meeras', mandal: 'Jersey City', type: 'Kishori', hrs: '142h 10m' },
+{ ini: 'KD', name: 'Kavita Desai', user: 'kdesai', mandal: 'Clifton', type: 'Sahradayi', hrs: '98h 30m' },
+{ ini: 'NJ', name: 'Nisha Joshi', user: 'nisha', mandal: 'Pennsylvania', type: 'Sahid', hrs: '41h 15m' }
+];
+return {
+accent: this.props.accent ?? '#B4410F',
+people: base.map((p) => {
+const isOff = !!off[p.user];
+return {
+...p,
+on: isOff ? 'false' : 'true',
+switchLabel: (isOff ? 'Activate ' : 'Deactivate ') + p.name,
+track: isOff ? '#A8A29E' : '#166534',
+justify: isOff ? 'flex-start' : 'flex-end',
+opacity: isOff ? '0.7' : '1',
+state: isOff ? 'Deactivated' : 'Active account',
+toggle: () => this.setState({ off: { ...off, [p.user]: !isOff } })
+};
+})
+};
+}
+}
+</script>
+</body>
+</html>

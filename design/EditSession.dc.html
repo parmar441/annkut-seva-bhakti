@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Edit seva session</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#B4410F}a:hover{color:#8A300A}
+textarea::placeholder{color:#78716C}
+</style>
+</helmet>
+<div style="width: 390px; height: 1040px; box-sizing: border-box; background: #F6F4EF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1C1917; display: flex; flex-direction: column">
+<header style="display: flex; align-items: center; gap: 8px; padding: 16px 12px 8px">
+<a href="History.dc.html" aria-label="Back to history" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #1C1917">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</a>
+<div style="display: flex; flex-direction: column">
+<h1 style="margin: 0; font-size: 20px; font-weight: 800">Edit session</h1>
+<p style="margin: 0; font-size: 13px; color: #57534E">Wed, Oct 22 · Completed</p>
+</div>
+</header>
+<form style="flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 8px 20px 20px">
+<fieldset style="margin: 0; border: 1px solid #E7E2DA; border-radius: 16px; background: #FFFFFF; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+<legend style="font-size: 13px; font-weight: 800; padding: 0 6px">Clock in</legend>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 4px"><label for="sd" style="font-size: 12px; font-weight: 600; color: #57534E">Date</label><input id="sd" type="date" style="height: 46px; border: 1.5px solid #D6D0C6; border-radius: 12px; padding: 0 10px; font: inherit; font-size: 14px"></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><label for="st" style="font-size: 12px; font-weight: 600; color: #57534E">Time</label><input id="st" type="time" style="height: 46px; border: 1.5px solid #D6D0C6; border-radius: 12px; padding: 0 10px; font: inherit; font-size: 14px"></div>
+</div>
+</fieldset>
+<fieldset style="margin: 0; border: 1px solid #E7E2DA; border-radius: 16px; background: #FFFFFF; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+<legend style="font-size: 13px; font-weight: 800; padding: 0 6px">Clock out</legend>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 4px"><label for="ed" style="font-size: 12px; font-weight: 600; color: #57534E">Date</label><input id="ed" type="date" style="height: 46px; border: 1.5px solid #D6D0C6; border-radius: 12px; padding: 0 10px; font: inherit; font-size: 14px"></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><label for="et" style="font-size: 12px; font-weight: 600; color: #57534E">Time</label><input id="et" type="time" style="height: 46px; border: 1.5px solid #D6D0C6; border-radius: 12px; padding: 0 10px; font: inherit; font-size: 14px"></div>
+</div>
+</fieldset>
+
+<div style="display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border: 1px solid #E7E2DA; border-radius: 16px; padding: 14px 16px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<p style="margin: 0; font-size: 12px; font-weight: 600; color: #57534E">New duration (calculated by server)</p>
+<p style="margin: 0; font-size: 20px; font-weight: 800">3 hours 45 minutes</p>
+</div>
+<p style="margin: 0; font-size: 14px; font-weight: 700; color: #57534E">3.75 h</p>
+</div>
+
+<div role="alert" style="display: flex; gap: 10px; background: #FEF3C7; border-radius: 14px; padding: 12px 14px; color: #78350F">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px"><path d="M12 3 2 21h20z"></path><path d="M12 10v5M12 18v.5"></path></svg>
+<p style="margin: 0; font-size: 13px; line-height: 1.45"><strong>Overlaps another session.</strong> Oct 22, 9:30 – 10:15 PM overlaps your new end time. Adjust the times, or this change will be flagged for admin review.</p>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="why" style="font-size: 14px; font-weight: 700">Reason for change <span style="color: #B91C1C">*</span></label>
+<textarea id="why" rows="3" required placeholder="e.g. Forgot to clock out after kitchen seva" style="border: 1.5px solid #D6D0C6; border-radius: 14px; padding: 12px 14px; font: inherit; font-size: 15px; background: #FFFFFF; resize: none"></textarea>
+<p style="margin: 0; font-size: 12px; color: #57534E">Required when editing a completed session. Saved to the audit trail.</p>
+</div>
+
+<section aria-label="Change history" style="display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-size: 15px; font-weight: 800">Change history</h2>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0">
+<li style="display: flex; gap: 12px; padding-bottom: 12px">
+<span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #B4410F; margin-top: 5px; flex: none"></span>
+<div style="display: flex; flex-direction: column; gap: 2px"><p style="margin: 0; font-size: 13px; font-weight: 700">Clock-out set 9:15 PM → 9:45 PM</p><p style="margin: 0; font-size: 12px; color: #57534E">By you · Oct 22, 10:02 PM · “Stayed for clean-up”</p></div>
+</li>
+<li style="display: flex; gap: 12px">
+<span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #A8A29E; margin-top: 5px; flex: none"></span>
+<div style="display: flex; flex-direction: column; gap: 2px"><p style="margin: 0; font-size: 13px; font-weight: 700">Session created by clock-in</p><p style="margin: 0; font-size: 12px; color: #57534E">Server time · Oct 22, 6:30 PM</p></div>
+</li>
+</ol>
+</section>
+
+<div style="flex: 1"></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<a href="History.dc.html" style="height: 54px; border-radius: 14px; border: 1.5px solid #D6D0C6; background: #FFFFFF; color: #1C1917; font-size: 16px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center">Cancel</a>
+<a href="History.dc.html" style="height: 54px; border-radius: 14px; background: {{accent}}; color: #FFFFFF; font-size: 16px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center">Save changes</a>
+</div>
+</form>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#B4410F","options":["#B4410F","#9F1239","#0F5E5A","#1E3A8A"]},"$preview":{"width":390,"height":1040}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#B4410F' };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+:root {
+  --font: 'Plus Jakarta Sans', system-ui, sans-serif; /* Google Fonts 400/500/600/700/800 */
+
+  --bg: #f6f4ef; /* page background */
+  --surface: #ffffff; /* cards, inputs, nav */
+  --surface-muted: #f0ece5; /* segmented controls, dividers, bar tracks */
+  --ink: #1c1917; /* primary text, dark cards, selected chips */
+  --muted: #57534e; /* secondary text (passes 4.5:1 on white and bg) */
+  --placeholder: #78716c;
+  --border: #e7e2da; /* card borders */
+  --border-input: #d6d0c6;
+
+  --accent: #b4410f; /* saffron: primary buttons, active nav, links */
+  --accent-hover: #8a300a;
+  --accent-soft: #fcebdd; /* highlight panels, avatars */
+
+  --success: #166534;
+  --success-bg: #dcfce7; /* Completed */
+  --info: #1e40af;
+  --info-bg: #dbeafe; /* Active */
+  --warning: #92400e;
+  --warning-bg: #fef3c7; /* Flagged, review */
+  --warning-ink: #78350f;
+  --danger: #b91c1c;
+  --danger-bg: #fee2e2; /* errors */
+
+  --on-dark-muted: #d6d3d1;
+  --switch-off: #a8a29e;
+
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-pill: 999px;
+  --space-page-x: 20px; /* 24px on auth screens */
+}
