@@ -680,6 +680,21 @@ fieldset.card legend {
   background: #fff;
   color: var(--ink);
 }
+.seva-btn.alt {
+  height: 48px;
+  margin-top: -6px;
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.seva-btn.alt:hover {
+  color: #fff;
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
 .seva-btn:disabled {
   opacity: 0.7;
   cursor: progress;

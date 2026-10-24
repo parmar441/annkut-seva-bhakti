@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AlertTriangle, ChevronLeft } from 'lucide-react';
 import { previewMine, useMe, useMySession, useMySessionAudit, useSaveSession } from '../../api/hooks';
 import { ApiError, errorMessage } from '../../api/client';
@@ -74,6 +74,9 @@ function EditForm({ session, auditEntries, auditLoading }: { session?: Session; 
   const isActive = session?.status === 'active';
   const reasonRequired = session?.status === 'completed';
   const navigate = useNavigate();
+  const location = useLocation();
+  // Return to wherever the user came from (the dashboard's "Add hours manually" or History).
+  const back = (location.state as { from?: string } | null)?.from ?? '/history';
   const toast = useToast();
   const me = useMe();
   const save = useSaveSession(session?.id);
@@ -121,7 +124,7 @@ function EditForm({ session, auditEntries, auditLoading }: { session?: Session; 
       {
         onSuccess: (s) => {
           toast(isNew ? 'Session added' : `Session saved · ${s.duration?.long ?? 'in progress'}`);
-          navigate('/history');
+          navigate(back);
         },
         onError: (err) => {
           if (!(err instanceof ApiError)) return;
@@ -135,7 +138,7 @@ function EditForm({ session, auditEntries, auditLoading }: { session?: Session; 
   });
 
   const title = isNew ? 'Add session' : isActive ? 'Add clock-out' : 'Edit session';
-  const subtitle = session ? `${formatCalendarDate(session.local_date)} · ${STATUS_TEXT[session.display_status]}` : 'Record seva you forgot to clock';
+  const subtitle = session ? `${formatCalendarDate(session.local_date)} · ${STATUS_TEXT[session.display_status]}` : 'Enter seva you have already done';
   const previewErrors = preview.data?.errors ?? {};
   const formError =
     save.error && !(save.error instanceof ApiError && (save.error.code === 'SESSION_OVERLAP' || Object.keys(save.error.fields).length)) ? errorMessage(save.error) : null;
@@ -143,7 +146,7 @@ function EditForm({ session, auditEntries, auditLoading }: { session?: Session; 
   return (
     <div className="app-subpage" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
       <header className="subpage-header">
-        <Link to="/history" className="icon-btn" aria-label="Back to history">
+        <Link to={back} className="icon-btn" aria-label="Back">
           <ChevronLeft size={22} strokeWidth={2} aria-hidden="true" />
         </Link>
         <div>
@@ -212,7 +215,7 @@ function EditForm({ session, auditEntries, auditLoading }: { session?: Session; 
 
         <div className="spacer" />
         <div className="grid-2">
-          <Link to="/history" className="btn btn-secondary">
+          <Link to={back} className="btn btn-secondary">
             Cancel
           </Link>
           <Button type="submit" loading={save.isPending} disabled={overlaps.length > 0 && !confirmOverlap}>

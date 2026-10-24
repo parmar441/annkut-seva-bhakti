@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Play, Square } from 'lucide-react';
+import { PencilLine, Play, Square } from 'lucide-react';
 import { useClockIn, useClockOut } from '../../api/hooks';
 import { ApiError, errorMessage } from '../../api/client';
 import type { Session } from '../../api/types';
@@ -84,6 +84,10 @@ export function SevaCard({ active, skewMs }: { active: Session | null; skewMs: n
             <Play size={18} fill="currentColor" aria-hidden="true" />
             {clockIn.isPending ? 'Starting…' : 'Start Seva · Clock in'}
           </button>
+          <Link to="/history/new" state={{ from: '/' }} className="seva-btn alt">
+            <PencilLine size={18} strokeWidth={2} aria-hidden="true" />
+            Add hours manually
+          </Link>
         </>
       )}
     </section>
