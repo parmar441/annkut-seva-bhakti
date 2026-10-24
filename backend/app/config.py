@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     reset_code_max_attempts: int = 5
     reset_request_rate_limit: str = "300/minute"
     reset_confirm_rate_limit: str = "300/minute"
+    # Self-service reset with a security question: wrong answers per username before a pause.
+    recovery_failures_per_user: int = 5
+    recovery_failure_window_minutes: int = 15
 
     # Concurrent Argon2 operations per process (each needs ~64 MiB RAM and one CPU core).
     hash_concurrency: int = 8

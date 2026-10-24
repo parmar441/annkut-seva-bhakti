@@ -106,13 +106,12 @@ A reason is required when a volunteer edits a completed session, and for every a
 
 ## Forgotten passwords
 
-Accounts have no email address, so resets go through an organizer:
+Volunteers reset their own password with a **security question**. No admin is involved.
 
-1. On **Sign in → Forgot password?**, the volunteer enters their username. The reply is the same whether or not the account exists, so the form can't be used to discover usernames.
-2. The request appears on the admin **Volunteers** page and **Overview**. The organizer checks it's really that person, opens their profile, and taps **Issue reset code**. The code looks like `K7Q2-M9XD` and is shown only once.
-3. The volunteer enters their username, the code and a new password on **I have a reset code**.
-
-Each account can have only one open reset at a time (a unique index). A code is tied to its username, works once, expires after `RESET_CODE_MINUTES` (30), and is invalidated after `RESET_CODE_MAX_ATTEMPTS` (5) wrong tries. Only a keyed hash of the code is stored. A successful reset signs the volunteer out on every device, clears any login lockout, and is recorded in the audit log. Organizers can't issue a code for their own account; another admin has to do it.
+- At registration everyone picks a question from a fixed list (`security_questions` in `shared/enums.json`) and types an answer. Accounts created before this feature see a "Set up your security question" prompt after signing in. Anyone can change theirs later from **Change security question** on the dashboard (or the admin account menu); this asks for their current password.
+- **Sign in → Forgot password?**: enter your username, answer your question, and choose a new password.
+- Answers match ignoring capitals, spaces and punctuation, and are stored as Argon2 hashes, like passwords. Unknown usernames, and accounts without a question, still get a believable question, so the page can't be used to discover accounts. After `RECOVERY_FAILURES_PER_USER` (5) wrong answers, recovery for that username pauses for `RECOVERY_FAILURE_WINDOW_MINUTES` (15). A reset signs the volunteer out on every device and is recorded in the audit log.
+- **Fallback:** if someone forgets their answer or username too, an organizer can find them by name under **Volunteers**, open their profile and tap **Issue reset code** (single use, expires in 30 minutes). The volunteer enters it under **I already have a code**. Organizers can't issue a code for their own account.
 
 ## Capacity and resilience
 

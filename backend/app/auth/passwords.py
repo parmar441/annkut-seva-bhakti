@@ -96,6 +96,11 @@ def needs_rehash(password_hash: str) -> bool:
     return _hasher.check_needs_rehash(password_hash)
 
 
+def normalize_answer(answer: str) -> str:
+    """Security answers match ignoring case, spacing and punctuation: "New  York!" == "new york"."""
+    return " ".join(re.sub(r"[^\w\s]", " ", answer.casefold()).split())
+
+
 # Used to equalise timing when a username doesn't exist.
 DUMMY_HASH = _hasher.hash("dummy-password-for-timing-only")
 

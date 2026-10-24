@@ -8,6 +8,8 @@ REG = {
     "confirm_password": STRONG_PASSWORD,
     "mandal_name": "Jersey City",
     "mandal_type": "Kishori",
+    "security_question": "What was the name of your first pet?",
+    "security_answer": "Moti",
 }
 
 

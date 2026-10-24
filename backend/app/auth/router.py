@@ -65,6 +65,8 @@ async def register(request: Request, response: Response, body: RegisterIn, db: A
         mandal_name=body.mandal_name.value,
         mandal_type=body.mandal_type.value,
         role=Role.USER,
+        security_question=body.security_question,
+        security_answer=body.security_answer,
     )
     await write_audit(
         db, entity="user", entity_id=user["_id"], action=AuditAction.CREATE, actor=user,

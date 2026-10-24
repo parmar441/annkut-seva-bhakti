@@ -14,6 +14,8 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from .admin.router import router as admin_router
 from .auth.csrf import CSRFMiddleware
+from .auth.recovery import me_router as recovery_me_router
+from .auth.recovery import router as recovery_router
 from .auth.reset import admin_router as reset_admin_router
 from .auth.reset import router as reset_router
 from .auth.router import router as auth_router
@@ -97,7 +99,7 @@ def create_app(*, start_background: bool = True) -> FastAPI:
         CORSMiddleware,
         allow_origins=settings.allowed_origins,
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "X-CSRF-Token"],
         expose_headers=["Content-Disposition"],
     )
@@ -119,6 +121,8 @@ def create_app(*, start_background: bool = True) -> FastAPI:
     app.include_router(sessions_router)
     app.include_router(admin_router)
     app.include_router(reset_router)
+    app.include_router(recovery_router)
+    app.include_router(recovery_me_router)
     app.include_router(reset_admin_router)
 
     @app.get("/api/health", tags=["meta"])

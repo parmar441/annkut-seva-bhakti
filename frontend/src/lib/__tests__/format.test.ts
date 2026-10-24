@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { formatDecimalHours, formatElapsed, formatHm, formatRange, localParts, setTimezone } from '../format';
 import { isCommonPassword, passwordChecks } from '../password';
+import { normalizeAnswer } from '../enums';
 
 describe('duration formatting matches the server rules', () => {
   it.each([
@@ -45,5 +46,12 @@ describe('password checklist', () => {
     expect(checks).toMatchObject({ length: false, case: false, number: false, special: false, common: false });
     expect(isCommonPassword('Welcome@2024!!')).toBe(true);
     expect(isCommonPassword('P@ssw0rd12345!')).toBe(true);
+  });
+});
+
+describe('security answers', () => {
+  it('match the server normalisation', () => {
+    expect(normalizeAnswer('  New   Brunswick! ')).toBe('new brunswick');
+    expect(normalizeAnswer("St. Mary's")).toBe('st mary s');
   });
 });

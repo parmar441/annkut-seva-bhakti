@@ -9,6 +9,7 @@ import SignIn from './features/auth/SignIn';
 import Register from './features/auth/Register';
 import ForgotPassword from './features/auth/ForgotPassword';
 import ResetPassword from './features/auth/ResetPassword';
+import SecurityQuestion from './features/auth/SecurityQuestion';
 import Dashboard from './features/dashboard/Dashboard';
 import History from './features/history/History';
 import SessionDetail from './features/history/SessionDetail';
@@ -50,6 +51,7 @@ export default function App() {
             <Route path="/history/new" element={<EditSession />} />
             <Route path="/history/:id" element={<SessionDetail />} />
             <Route path="/history/:id/edit" element={<EditSession />} />
+            <Route path="/account/security-question" element={<SecurityQuestion />} />
           </Route>
 
           <Route path="/admin" element={<RequireAdmin><AdminShell /></RequireAdmin>}>

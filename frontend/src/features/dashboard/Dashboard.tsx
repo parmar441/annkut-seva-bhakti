@@ -7,6 +7,7 @@ import { DurationStat, EmptyState, ErrorState, Skeleton } from '../../components
 import { TextField } from '../../components/Field';
 import { formatRange, initials, monthName, monthStartLocal, todayLocal } from '../../lib/format';
 import { SevaCard } from './SevaCard';
+import { SecurityQuestionPrompt } from '../../components/Shells';
 
 function RangeLookup() {
   const [from, setFrom] = useState(monthStartLocal());
@@ -77,6 +78,8 @@ export default function Dashboard() {
         </div>
       </header>
 
+      <SecurityQuestionPrompt />
+
       {summary.isPending ? (
         <Skeleton height={190} />
       ) : summary.isError ? (
@@ -115,6 +118,12 @@ export default function Dashboard() {
           <EmptyState>No seva sessions yet. Tap Start Seva to begin.</EmptyState>
         ) : null}
       </section>
+
+      {user.has_security_question && (
+        <Link to="/account/security-question" className="link-sm" style={{ alignSelf: 'center', minHeight: 44, display: 'inline-flex', alignItems: 'center' }}>
+          Change security question
+        </Link>
+      )}
     </div>
   );
 }

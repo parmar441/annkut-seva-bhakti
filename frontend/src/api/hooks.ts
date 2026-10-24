@@ -71,6 +71,8 @@ export interface RegisterBody {
   confirm_password: string;
   mandal_name: string;
   mandal_type: string;
+  security_question: string;
+  security_answer: string;
 }
 
 export function useRegister() {
@@ -272,12 +274,6 @@ export function previewAdmin(id: string, body: { clock_in: string; clock_out?: s
 
 // ---------- forgotten passwords ----------
 
-export function useRequestReset() {
-  return useMutation({
-    mutationFn: (username: string) => api<{ message: string }>('/api/auth/password-reset/request', { method: 'POST', body: { username } }),
-  });
-}
-
 export interface ResetConfirmBody {
   username: string;
   code: string;
@@ -288,14 +284,6 @@ export interface ResetConfirmBody {
 export function useConfirmReset() {
   return useMutation({
     mutationFn: (body: ResetConfirmBody) => api<{ message: string }>('/api/auth/password-reset/confirm', { method: 'POST', body }),
-  });
-}
-
-export function useResetRequests() {
-  return useQuery({
-    queryKey: ['admin', 'password-resets'],
-    queryFn: () => api<Page<PasswordReset>>('/api/admin/password-resets', { params: { status: 'requested' } }),
-    refetchInterval: 30_000,
   });
 }
 
@@ -320,5 +308,45 @@ export function useCancelReset() {
   return useMutation({
     mutationFn: (id: string) => api<{ reset: null }>(`/api/admin/users/${id}/password-reset/cancel`, { method: 'POST' }),
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.admin }),
+  });
+}
+
+// ---------- security question (self-service reset) ----------
+
+export function useResetQuestion() {
+  return useMutation({
+    mutationFn: (username: string) => api<{ question: string }>('/api/auth/password-reset/question', { method: 'POST', body: { username } }),
+  });
+}
+
+export interface ResetAnswerBody {
+  username: string;
+  answer: string;
+  password: string;
+  confirm_password: string;
+}
+
+export function useResetWithAnswer() {
+  return useMutation({
+    mutationFn: (body: ResetAnswerBody) => api<{ message: string }>('/api/auth/password-reset/answer', { method: 'POST', body }),
+  });
+}
+
+export function useMySecurityQuestion() {
+  return useQuery({
+    queryKey: ['me', 'security-question'],
+    queryFn: () => api<{ question: string | null }>('/api/me/security-question').then((r) => r.question),
+  });
+}
+
+export function useSetSecurityQuestion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { question: string; answer: string; current_password: string }) =>
+      api<{ question: string }>('/api/me/security-question', { method: 'PUT', body }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: keys.me });
+      qc.invalidateQueries({ queryKey: ['me', 'security-question'] });
+    },
   });
 }

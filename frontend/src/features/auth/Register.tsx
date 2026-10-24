@@ -8,7 +8,7 @@ import { ApiError } from '../../api/client';
 import { PasswordField, SelectField, TextField } from '../../components/Field';
 import { Button, PasswordStrength } from '../../components/ui';
 import { useToast } from '../../components/Toast';
-import { MANDAL_NAMES, MANDAL_TYPES, PASSWORD_MIN_LENGTH } from '../../lib/enums';
+import { MANDAL_NAMES, MANDAL_TYPES, PASSWORD_MIN_LENGTH, SECURITY_ANSWER_MIN_LENGTH, SECURITY_QUESTIONS, normalizeAnswer } from '../../lib/enums';
 import { passwordChecks } from '../../lib/password';
 
 const schema = z
@@ -24,6 +24,10 @@ const schema = z
     mandal_type: z.string().refine((v) => MANDAL_TYPES.includes(v), 'Choose your Mandal type.'),
     password: z.string().min(1, 'Choose a password.'),
     confirm_password: z.string().min(1, 'Re-enter your password.'),
+    security_question: z.string().refine((v) => SECURITY_QUESTIONS.includes(v), 'Choose a security question.'),
+    security_answer: z
+      .string()
+      .refine((v) => normalizeAnswer(v).length >= SECURITY_ANSWER_MIN_LENGTH, `Use at least ${SECURITY_ANSWER_MIN_LENGTH} letters or numbers.`),
   })
   .superRefine((v, ctx) => {
     const failed = passwordChecks(v.password).filter((c) => !c.ok);
@@ -49,7 +53,7 @@ export default function Register() {
   } = useForm<Values>({
     resolver: zodResolver(schema),
     mode: 'onTouched',
-    defaultValues: { mandal_name: '', mandal_type: '' },
+    defaultValues: { mandal_name: '', mandal_type: '', security_question: '' },
   });
   const password = watch('password') ?? '';
 
@@ -115,6 +119,24 @@ export default function Register() {
           error={errors.confirm_password?.message}
           required
           {...register('confirm_password')}
+        />
+        <SelectField
+          label="Security question"
+          options={SECURITY_QUESTIONS}
+          placeholder="Choose a question"
+          error={errors.security_question?.message}
+          required
+          {...register('security_question')}
+        />
+        <TextField
+          label="Your answer"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder="Something you'll remember"
+          error={errors.security_answer?.message}
+          hint="You'll answer this to reset your password if you forget it."
+          required
+          {...register('security_answer')}
         />
         <Button type="submit" block loading={isSubmitting} style={{ marginTop: 8 }}>
           {isSubmitting ? 'Creating account…' : 'Create account'}

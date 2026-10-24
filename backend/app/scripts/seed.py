@@ -4,7 +4,8 @@ Usage:
     python -m app.scripts.seed            # adds sample data (skips if volunteers already exist)
     python -m app.scripts.seed --reset    # wipes users, sessions, audit logs and tokens first
 
-All sample accounts use the password in SEED_PASSWORD (default: Seva-Demo-2026!).
+All sample accounts use the password in SEED_PASSWORD (default: Seva-Demo-2026!) and answer
+"Edison" to the security question.
 Refuses to run when ENVIRONMENT=production.
 """
 
@@ -15,11 +16,11 @@ import random
 import sys
 from datetime import UTC, datetime, time, timedelta
 
-from ..auth.passwords import hash_password
+from ..auth.passwords import hash_password, normalize_answer
 from ..common import utcnow
 from ..config import get_settings
 from ..db import close_db, ensure_indexes, get_db
-from ..enums import MANDAL_NAMES, MANDAL_TYPES, Role, SessionFlag
+from ..enums import MANDAL_NAMES, MANDAL_TYPES, SECURITY_QUESTIONS, Role, SessionFlag
 from ..reports.timecalc import duration_seconds, local_date
 
 VOLUNTEERS = [
@@ -57,6 +58,8 @@ async def seed_database(db, days: int = 60) -> dict:
     s = get_settings()
     rng = random.Random(108)
     password_hash = hash_password(os.environ.get("SEED_PASSWORD", "Seva-Demo-2026!"))
+    # Demo accounts answer "Edison" to the birthplace question (for trying self-service reset).
+    answer_hash = hash_password(normalize_answer("Edison"))
     now = utcnow()
     tz = s.tz
 
@@ -65,6 +68,7 @@ async def seed_database(db, days: int = 60) -> dict:
             "full_name": full_name, "username": username, "username_lower": username.lower(),
             "password_hash": password_hash, "mandal_name": mandal, "mandal_type": mtype, "role": role,
             "is_active": True, "created_at": now - timedelta(days=days + 5), "updated_at": now, "last_login_at": None,
+            "security_question": SECURITY_QUESTIONS[1], "security_answer_hash": answer_hash, "security_set_at": now,
         }
 
     admin = user_doc("Edison Organizer", "organizer", "Edison", "Yuvti", Role.ADMIN.value)

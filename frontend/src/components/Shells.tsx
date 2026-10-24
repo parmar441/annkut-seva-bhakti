@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, CircleUser, Clock, Filter, Flag, Home, LogOut, Users } from 'lucide-react';
+import { BarChart3, ChevronRight, CircleUser, Clock, Filter, Flag, Home, LogOut, ShieldCheck, Users } from 'lucide-react';
 import { useLogout, useMe } from '../api/hooks';
 import { useToast } from './Toast';
 import { Logo } from './ui';
@@ -103,6 +103,10 @@ export function AdminShell() {
           <Home {...ICON} />
           My seva
         </NavLink>
+        <NavLink to="/account/security-question" className={navClass}>
+          <ShieldCheck {...ICON} />
+          Security question
+        </NavLink>
         <SignOutButton />
       </nav>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
@@ -119,6 +123,22 @@ export function AdminShell() {
         </nav>
       </div>
     </div>
+  );
+}
+
+/** Until it's set, nudge the user to add a security question so they can reset a forgotten password. */
+export function SecurityQuestionPrompt() {
+  const me = useMe();
+  if (!me.data || me.data.has_security_question) return null;
+  return (
+    <Link to="/account/security-question" className="banner">
+      <ShieldCheck size={22} strokeWidth={2} aria-hidden="true" />
+      <span className="main">
+        <strong style={{ fontSize: 15 }}>Set up your security question</strong>
+        <span style={{ fontSize: 12 }}>So you can reset your password yourself if you forget it.</span>
+      </span>
+      <ChevronRight size={20} strokeWidth={2} aria-hidden="true" />
+    </Link>
   );
 }
 
@@ -177,6 +197,10 @@ export function AdminAccountMenu() {
           <Link to="/" role="menuitem" className="menu-item">
             <Home size={20} strokeWidth={1.9} aria-hidden="true" />
             My seva
+          </Link>
+          <Link to="/account/security-question" role="menuitem" className="menu-item">
+            <ShieldCheck size={20} strokeWidth={1.9} aria-hidden="true" />
+            Security question
           </Link>
           <SignOutButton className="menu-item" role="menuitem" iconSize={20} />
         </div>

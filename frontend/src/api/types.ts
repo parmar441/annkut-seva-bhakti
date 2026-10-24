@@ -20,6 +20,7 @@ export interface User {
   mandal_type: MandalType;
   role: Role;
   is_active: boolean;
+  has_security_question: boolean;
   created_at: string | null;
   last_login_at: string | null;
 }
@@ -141,6 +142,7 @@ export interface Meta {
   long_session_hours: number;
   max_session_hours: number;
   password_min_length: number;
+  security_questions: string[];
 }
 
 export interface NamedHours extends Duration {

@@ -74,7 +74,7 @@ export default function ResetPassword() {
         <h1>Set a new password</h1>
       </header>
       <p className="muted" style={{ padding: '0 24px 16px', fontSize: 14 }}>
-        Enter the one-time code your organizer gave you.
+        Enter the one-time code your Mandal organizer gave you.
       </p>
       <form className="form compact" style={{ padding: '0 24px' }} onSubmit={onSubmit} noValidate>
         {errors.root?.message && (
@@ -101,7 +101,7 @@ export default function ResetPassword() {
           maxLength={12}
           style={{ letterSpacing: '0.12em', fontWeight: 700, textTransform: 'uppercase' }}
           error={errors.code?.message}
-          hint="Works once and expires 30 minutes after it was issued."
+          hint="Ask your organizer for this code. It works once and expires after 30 minutes."
           required
           {...register('code')}
         />
@@ -126,7 +126,7 @@ export default function ResetPassword() {
           {confirm.isPending ? 'Saving…' : 'Set new password'}
         </Button>
         <p className="muted" style={{ textAlign: 'center', fontSize: 14 }}>
-          No code yet? <Link to="/forgot-password" style={{ fontWeight: 700 }}>Request one</Link>
+          Know your security answer? <Link to="/forgot-password" style={{ fontWeight: 700 }}>Reset it yourself</Link>
         </p>
       </form>
     </div>

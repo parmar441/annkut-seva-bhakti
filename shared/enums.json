@@ -19,5 +19,15 @@
     "long_session",
     "manual_entry"
   ],
-  "password_min_length": 6
+  "password_min_length": 6,
+  "security_questions": [
+    "What was the name of your first school?",
+    "In which city or village were you born?",
+    "What was the name of your first pet?",
+    "What is your favourite food?",
+    "What was your childhood nickname?",
+    "What is the name of your childhood best friend?",
+    "Which mandir did you first visit?"
+  ],
+  "security_answer_min_length": 3
 }

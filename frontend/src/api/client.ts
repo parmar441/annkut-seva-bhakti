@@ -82,7 +82,7 @@ export function apiUrl(path: string, params?: Query): string {
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   params?: Query;
   /** Internal: prevents refresh loops. */

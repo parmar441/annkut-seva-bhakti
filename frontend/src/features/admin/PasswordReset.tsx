@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronRight, Copy, KeyRound } from 'lucide-react';
-import { useCancelReset, useIssueResetCode, useResetRequests, useUserReset } from '../../api/hooks';
+import { Copy, KeyRound } from 'lucide-react';
+import { useCancelReset, useIssueResetCode, useUserReset } from '../../api/hooks';
 import { errorMessage } from '../../api/client';
 import type { User } from '../../api/types';
 import { Button } from '../../components/ui';
@@ -77,7 +76,8 @@ export function PasswordResetCard({ user, isSelf }: { user: User; isSelf: boolea
         </p>
       ) : (
         <p className="muted" style={{ fontSize: 13 }}>
-          If {user.full_name} forgot their password, check it's them and issue a one-time code.
+          Volunteers reset their own password with their security question. If {user.full_name} forgot the answer too, check
+          it's them and issue a one-time code.
         </p>
       )}
 
@@ -95,36 +95,6 @@ export function PasswordResetCard({ user, isSelf }: { user: User; isSelf: boolea
           </Button>
         </div>
       )}
-    </section>
-  );
-}
-
-/** Volunteers page / overview: who is waiting for a reset code. */
-export function ResetRequestsBanner() {
-  const requests = useResetRequests();
-  const items = requests.data?.items ?? [];
-  if (!items.length) return null;
-  return (
-    <section aria-label="Password reset requests" className="banner" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
-      <div className="row" style={{ gap: 10 }}>
-        <KeyRound size={20} strokeWidth={2} aria-hidden="true" />
-        <strong style={{ fontSize: 15 }}>
-          {items.length} password reset request{items.length === 1 ? '' : 's'}
-        </strong>
-      </div>
-      {items.map((r) => (
-        <Link
-          key={r.id}
-          to={`/admin/volunteers/${r.user_id}`}
-          className="row"
-          style={{ justifyContent: 'space-between', color: 'inherit', textDecoration: 'none', minHeight: 44, borderTop: '1px solid rgba(120,53,15,0.15)' }}
-        >
-          <span style={{ fontSize: 13 }}>
-            <strong>{r.volunteer?.full_name}</strong> @{r.volunteer?.username} · {formatDateTime(r.requested_at)}
-          </span>
-          <ChevronRight size={18} aria-hidden="true" />
-        </Link>
-      ))}
     </section>
   );
 }

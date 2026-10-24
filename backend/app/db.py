@@ -87,6 +87,12 @@ async def ensure_indexes(db: AsyncIOMotorDatabase) -> None:
             IndexModel([("at", ASCENDING)], expireAfterSeconds=86400, name="at_ttl"),
         ]
     )
+    await db.recovery_failures.create_indexes(
+        [
+            IndexModel([("username", ASCENDING), ("at", ASCENDING)]),
+            IndexModel([("at", ASCENDING)], expireAfterSeconds=86400, name="at_ttl"),
+        ]
+    )
     await db.password_resets.create_indexes(
         [
             IndexModel([("active", ASCENDING), ("status", ASCENDING), ("requested_at", DESCENDING)]),
