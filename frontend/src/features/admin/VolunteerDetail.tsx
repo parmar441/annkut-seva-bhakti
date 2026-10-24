@@ -7,6 +7,7 @@ import { durationText, sessionNote } from '../../components/SessionCard';
 import { DurationStat, EmptyState, ErrorState, Pagination, Skeleton, StatCard, StatusPill, Switch } from '../../components/ui';
 import { useToast } from '../../components/Toast';
 import { TextField } from '../../components/Field';
+import { PasswordResetCard } from './PasswordReset';
 import { formatCalendarDate, formatDateTime, formatTime, initials } from '../../lib/format';
 
 export default function VolunteerDetail() {
@@ -65,6 +66,7 @@ export default function VolunteerDetail() {
           {user.is_active ? 'Active account' : 'Deactivated'} · Joined {formatDateTime(user.created_at)} · Last sign-in {formatDateTime(user.last_login_at)}
         </p>
       </section>
+      <PasswordResetCard user={user} isSelf={user.id === me.data?.id} />
       <section aria-label="Totals" className="grid-3">
         <DurationStat label="Lifetime" duration={lifetime.duration} />
         <DurationStat label="This month" duration={this_month.duration} />

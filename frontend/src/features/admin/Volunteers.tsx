@@ -9,6 +9,7 @@ import { EmptyState, ErrorState, Pagination, Skeleton, Switch } from '../../comp
 import { useToast } from '../../components/Toast';
 import { MANDAL_NAMES, MANDAL_TYPES } from '../../lib/enums';
 import { initials } from '../../lib/format';
+import { ResetRequestsBanner } from './PasswordReset';
 
 function VolunteerCard({ p, isSelf }: { p: AdminUser; isSelf: boolean }) {
   const setStatus = useSetUserStatus();
@@ -33,6 +34,11 @@ function VolunteerCard({ p, isSelf }: { p: AdminUser; isSelf: boolean }) {
             @{p.username} · {p.mandal_name} · {p.mandal_type}
             {p.on_seva_now && ' · on seva now'}
           </p>
+          {p.password_reset && (
+            <span className="pill pill-flagged" style={{ alignSelf: 'flex-start', marginTop: 2 }}>
+              {p.password_reset === 'requested' ? 'Password reset requested' : 'Reset code issued'}
+            </span>
+          )}
         </div>
         <Switch
           checked={p.is_active}
@@ -73,6 +79,7 @@ export default function Volunteers() {
   return (
     <div className="page tight">
       <AdminHeader title="Volunteers" aside={<p className="muted" style={{ fontSize: 13 }}>{total.data ? `${total.data.total} registered` : ''}</p>} />
+      <ResetRequestsBanner />
       <TextField label="Search by name or username" small type="search" placeholder="Search volunteers" value={search} onChange={(e) => setSearch(e.target.value)} />
       <div className="grid-2">
         <SelectField small label="Mandal" options={MANDAL_NAMES} placeholder="All Mandals" value={mandal} onChange={(e) => {

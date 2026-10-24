@@ -14,6 +14,8 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from .admin.router import router as admin_router
 from .auth.csrf import CSRFMiddleware
+from .auth.reset import admin_router as reset_admin_router
+from .auth.reset import router as reset_router
 from .auth.router import router as auth_router
 from .config import get_settings
 from .db import close_db, ensure_indexes, get_db, is_in_memory
@@ -116,6 +118,8 @@ def create_app(*, start_background: bool = True) -> FastAPI:
     app.include_router(meta_router)
     app.include_router(sessions_router)
     app.include_router(admin_router)
+    app.include_router(reset_router)
+    app.include_router(reset_admin_router)
 
     @app.get("/api/health", tags=["meta"])
     @limiter.exempt

@@ -87,6 +87,20 @@ async def ensure_indexes(db: AsyncIOMotorDatabase) -> None:
             IndexModel([("at", ASCENDING)], expireAfterSeconds=86400, name="at_ttl"),
         ]
     )
+    await db.password_resets.create_indexes(
+        [
+            IndexModel([("active", ASCENDING), ("status", ASCENDING), ("requested_at", DESCENDING)]),
+            IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
+        ]
+    )
+    if not is_in_memory():
+        # At most one open reset (requested or issued) per user.
+        await db.password_resets.create_index(
+            [("user_id", ASCENDING)],
+            unique=True,
+            partialFilterExpression={"active": True},
+            name="one_open_reset_per_user",
+        )
     await db.refresh_tokens.create_indexes(
         [
             IndexModel([("token_hash", ASCENDING)], unique=True),

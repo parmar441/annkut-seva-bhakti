@@ -21,6 +21,8 @@ export function describeChange(e: AuditEntry): string {
     if (e.action === 'activate') return 'Account activated';
     if (e.action === 'deactivate') return 'Account deactivated';
     if (e.action === 'create') return 'Account created';
+    if (e.action === 'reset_issued') return 'Password reset code issued';
+    if (e.action === 'password_reset') return 'Password changed with reset code';
     return 'Account updated';
   }
   if (e.action === 'create') {
@@ -48,6 +50,6 @@ export function auditSubject(e: AuditEntry): string {
 
 /** Reason shown in quotes, hidden for system-generated reasons. */
 export function userReason(e: AuditEntry): string | null {
-  if (!e.reason || ['Clock in', 'Clock out', 'Manual entry', 'Marked reviewed', 'Self-registration'].includes(e.reason)) return null;
+  if (!e.reason || ['Clock in', 'Clock out', 'Manual entry', 'Marked reviewed', 'Self-registration', 'Password reset code issued', 'Password reset with organizer code'].includes(e.reason)) return null;
   return e.reason;
 }

@@ -5,6 +5,7 @@ import { errorMessage } from '../../api/client';
 import { AdminHeader } from '../../components/Shells';
 import { ErrorState, HoursBar, Skeleton, StatCard } from '../../components/ui';
 import { formatDay, formatNumber, monthName } from '../../lib/format';
+import { ResetRequestsBanner } from './PasswordReset';
 
 export default function Overview() {
   const stats = useAdminStats();
@@ -54,6 +55,8 @@ export default function Overview() {
           ) : (
             <p className="note">No sessions need review right now.</p>
           )}
+
+          <ResetRequestsBanner />
 
           <div className="split-desktop stack" style={{ gap: 18 }}>
             <section aria-label={`Hours by Mandal, ${month}`} className="card pad-lg stack">

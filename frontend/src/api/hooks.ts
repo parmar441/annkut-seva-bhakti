@@ -11,6 +11,7 @@ import type {
   MeSummary,
   MeTotals,
   Page,
+  PasswordReset,
   Preview,
   ReportResponse,
   ReviewResponse,
@@ -267,4 +268,57 @@ export function useMarkReviewed() {
 
 export function previewAdmin(id: string, body: { clock_in: string; clock_out?: string }) {
   return api<Preview>(`/api/admin/sessions/${id}/preview`, { method: 'POST', body });
+}
+
+// ---------- forgotten passwords ----------
+
+export function useRequestReset() {
+  return useMutation({
+    mutationFn: (username: string) => api<{ message: string }>('/api/auth/password-reset/request', { method: 'POST', body: { username } }),
+  });
+}
+
+export interface ResetConfirmBody {
+  username: string;
+  code: string;
+  password: string;
+  confirm_password: string;
+}
+
+export function useConfirmReset() {
+  return useMutation({
+    mutationFn: (body: ResetConfirmBody) => api<{ message: string }>('/api/auth/password-reset/confirm', { method: 'POST', body }),
+  });
+}
+
+export function useResetRequests() {
+  return useQuery({
+    queryKey: ['admin', 'password-resets'],
+    queryFn: () => api<Page<PasswordReset>>('/api/admin/password-resets', { params: { status: 'requested' } }),
+    refetchInterval: 30_000,
+  });
+}
+
+export function useUserReset(id: string | undefined) {
+  return useQuery({
+    queryKey: ['admin', 'user', id, 'password-reset'],
+    queryFn: () => api<{ reset: PasswordReset | null }>(`/api/admin/users/${id}/password-reset`).then((r) => r.reset),
+    enabled: !!id,
+  });
+}
+
+export function useIssueResetCode() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api<{ code: string; reset: PasswordReset }>(`/api/admin/users/${id}/password-reset`, { method: 'POST' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.admin }),
+  });
+}
+
+export function useCancelReset() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api<{ reset: null }>(`/api/admin/users/${id}/password-reset/cancel`, { method: 'POST' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.admin }),
+  });
 }

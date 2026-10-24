@@ -104,6 +104,16 @@ Backend tests use an in-memory Mongo mock (`mongomock-motor`). They cover durati
 
 A reason is required when a volunteer edits a completed session, and for every admin correction. Each change writes an `audit_logs` record with the before and after values, the reason, the actor and a timestamp.
 
+## Forgotten passwords
+
+Accounts have no email address, so resets go through an organizer:
+
+1. On **Sign in → Forgot password?**, the volunteer enters their username. The reply is the same whether or not the account exists, so the form can't be used to discover usernames.
+2. The request appears on the admin **Volunteers** page and **Overview**. The organizer checks it's really that person, opens their profile, and taps **Issue reset code**. The code looks like `K7Q2-M9XD` and is shown only once.
+3. The volunteer enters their username, the code and a new password on **I have a reset code**.
+
+Each account can have only one open reset at a time (a unique index). A code is tied to its username, works once, expires after `RESET_CODE_MINUTES` (30), and is invalidated after `RESET_CODE_MAX_ATTEMPTS` (5) wrong tries. Only a keyed hash of the code is stored. A successful reset signs the volunteer out on every device, clears any login lockout, and is recorded in the audit log. Organizers can't issue a code for their own account; another admin has to do it.
+
 ## Capacity and resilience
 
 - **Sign-in bursts:** 500 simultaneous logins from one IP all succeed. This was load-tested against Atlas and is covered by `tests/test_resilience.py`. Per-IP limits are sized for a whole event sharing one Wi-Fi address. Password guessing is blocked per account instead: 10 failures per username+IP, or 50 per username, within 15 minutes.

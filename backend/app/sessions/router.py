@@ -146,6 +146,6 @@ async def update_session(
 @router.get("/sessions/{session_id}/audit")
 async def session_audit(session_id: str, user: dict = Depends(get_current_user), db: AsyncIOMotorDatabase = Depends(db_dep)):
     doc = await _own_session(db, user, session_id)
-    logs = await db.audit_logs.find({"entity": "seva_session", "entity_id": doc["_id"]}).sort("created_at", -1).to_list(200)
+    logs = await db.audit_logs.find({"entity": "seva_session", "entity_id": doc["_id"]}).sort([("created_at", -1), ("_id", -1)]).to_list(200)
     return {"items": [audit_public(x) for x in logs]}
 

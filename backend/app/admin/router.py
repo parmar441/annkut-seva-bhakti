@@ -89,6 +89,7 @@ async def stats(db: AsyncIOMotorDatabase = Depends(db_dep)):
         "hours_this_month": duration_view(month["seconds"]),
         "on_seva_now": on_seva_now,
         "needs_review": {"total": review_total, "by_flag": review_by_flag},
+        "password_reset_requests": await db.password_resets.count_documents({"active": True, "status": "requested"}),
         "by_mandal": [{"name": m.value, **duration_view(by_mandal.get(m.value, empty)["seconds"])} for m in MandalName],
         "by_type": [{"name": t.value, **duration_view(by_type.get(t.value, empty)["seconds"])} for t in MandalType],
     }
@@ -134,8 +135,10 @@ async def list_users(
         )
     }
     active = {s["user_id"] async for s in db.seva_sessions.find({"user_id": {"$in": ids}, "status": "active"}, {"user_id": 1})}
+    resets = {r["user_id"]: r["status"] async for r in db.password_resets.find({"user_id": {"$in": ids}, "active": True})}
     items = [
-        {**user_public(u), "lifetime": duration_view(int(lifetime.get(u["_id"], 0))), "on_seva_now": u["_id"] in active}
+        {**user_public(u), "lifetime": duration_view(int(lifetime.get(u["_id"], 0))), "on_seva_now": u["_id"] in active,
+         "password_reset": resets.get(u["_id"])}
         for u in users
     ]
     return {"items": items, **page_meta(page, page_size, total)}
@@ -396,7 +399,7 @@ async def audit_log(
         match["entity"] = entity
     skip, limit = page_params(page, page_size)
     total = await db.audit_logs.count_documents(match)
-    logs = await db.audit_logs.find(match).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    logs = await db.audit_logs.find(match).sort([("created_at", -1), ("_id", -1)]).skip(skip).limit(limit).to_list(limit)
     owner_ids = list({x["owner_id"] for x in logs if x.get("owner_id")})
     owners = {u["_id"]: u async for u in db.users.find({"_id": {"$in": owner_ids}}, {"full_name": 1, "username": 1})}
     items = []

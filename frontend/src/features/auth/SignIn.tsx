@@ -63,6 +63,9 @@ export default function SignIn() {
           error={errors.password?.message}
           {...register('password')}
         />
+        <Link to="/forgot-password" style={{ alignSelf: 'flex-end', fontSize: 14, fontWeight: 700, minHeight: 44, display: 'inline-flex', alignItems: 'center', marginTop: -12, marginBottom: -12 }}>
+          Forgot password?
+        </Link>
         <Button type="submit" block loading={login.isPending} style={{ marginTop: 8 }}>
           {login.isPending ? 'Signing in…' : 'Sign in'}
         </Button>

@@ -121,7 +121,7 @@ export interface AuditEntry {
   id: string;
   entity: 'seva_session' | 'user';
   entity_id: string;
-  action: 'create' | 'update' | 'correct' | 'review' | 'activate' | 'deactivate';
+  action: 'create' | 'update' | 'correct' | 'review' | 'activate' | 'deactivate' | 'reset_issued' | 'password_reset';
   actor_id: string | null;
   actor_role: string;
   actor_username: string | null;
@@ -158,6 +158,7 @@ export interface AdminStats {
   hours_this_month: Duration;
   on_seva_now: number;
   needs_review: { total: number; by_flag: Record<SessionFlag, number> };
+  password_reset_requests: number;
   by_mandal: NamedHours[];
   by_type: NamedHours[];
 }
@@ -165,6 +166,19 @@ export interface AdminStats {
 export interface AdminUser extends User {
   lifetime: Duration;
   on_seva_now: boolean;
+  password_reset: 'requested' | 'issued' | null;
+}
+
+export interface PasswordReset {
+  id: string;
+  user_id: string;
+  status: 'requested' | 'issued';
+  requested_at: string | null;
+  issued_at: string | null;
+  expires_at: string | null;
+  issued_by: string | null;
+  attempts: number;
+  volunteer?: VolunteerRef;
 }
 
 export interface AdminUserDetail {

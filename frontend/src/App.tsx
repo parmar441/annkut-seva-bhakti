@@ -7,6 +7,8 @@ import { setTimezone } from './lib/format';
 import { GuestOnly, RequireAdmin, RequireAuth } from './routes/guards';
 import SignIn from './features/auth/SignIn';
 import Register from './features/auth/Register';
+import ForgotPassword from './features/auth/ForgotPassword';
+import ResetPassword from './features/auth/ResetPassword';
 import Dashboard from './features/dashboard/Dashboard';
 import History from './features/history/History';
 import SessionDetail from './features/history/SessionDetail';
@@ -35,6 +37,8 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<GuestOnly><SignIn /></GuestOnly>} />
           <Route path="/register" element={<GuestOnly><Register /></GuestOnly>} />
+          <Route path="/forgot-password" element={<GuestOnly><ForgotPassword /></GuestOnly>} />
+          <Route path="/reset-password" element={<GuestOnly><ResetPassword /></GuestOnly>} />
 
           <Route element={<RequireAuth><VolunteerShell /></RequireAuth>}>
             <Route index element={<Dashboard />} />

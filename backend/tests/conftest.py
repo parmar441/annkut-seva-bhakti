@@ -28,6 +28,7 @@ async def db():
     # mongomock ignores partialFilterExpression, so this index would wrongly make user_id unique for
     # every session. Real MongoDB enforces it; the service also pre-checks for an active session.
     await database.seva_sessions.drop_index("one_active_session_per_user")
+    await database.password_resets.drop_index("one_open_reset_per_user")
     set_database(database)
     yield database
     common.freeze_now(None)

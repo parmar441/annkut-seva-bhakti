@@ -57,6 +57,8 @@ class AuditAction(str, Enum):
     REVIEW = "review"
     ACTIVATE = "activate"
     DEACTIVATE = "deactivate"
+    RESET_ISSUED = "reset_issued"
+    PASSWORD_RESET = "password_reset"
 
 
 assert {f.value for f in SessionFlag} == set(_DATA["session_flags"])

@@ -48,6 +48,12 @@ class Settings(BaseSettings):
     login_failures_per_user_ip: int = 10
     login_failures_per_user: int = 50
 
+    # Forgotten passwords: organizer-issued one-time codes.
+    reset_code_minutes: int = 30
+    reset_code_max_attempts: int = 5
+    reset_request_rate_limit: str = "300/minute"
+    reset_confirm_rate_limit: str = "300/minute"
+
     # Concurrent Argon2 operations per process (each needs ~64 MiB RAM and one CPU core).
     hash_concurrency: int = 8
 
