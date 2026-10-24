@@ -73,14 +73,11 @@ export default function SignIn() {
       <div className="spacer" style={{ minHeight: 32 }} />
       <div className="stack" style={{ alignItems: 'center', gap: 10 }}>
         <p className="muted" style={{ fontSize: 15 }}>
-          First time doing seva with us?
+          First time Registration
         </p>
         <Link to="/register" className="btn btn-secondary btn-block" style={{ height: 52 }}>
           Create volunteer account
         </Link>
-        <p className="muted" style={{ fontSize: 12, marginTop: 8, textAlign: 'center' }}>
-          Admin accounts are set up by organizers only.
-        </p>
       </div>
     </div>
   );
