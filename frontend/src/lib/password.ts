@@ -1,5 +1,6 @@
 // Mirrors backend/app/auth/passwords.py. The server re-checks everything.
 import commonList from '@shared/common_passwords.txt?raw';
+import { PASSWORD_MIN_LENGTH } from './enums';
 
 const COMMON = new Set(
   commonList
@@ -25,7 +26,7 @@ export interface PasswordCheck {
 
 export function passwordChecks(pw: string): PasswordCheck[] {
   return [
-    { id: 'length', label: '12 or more characters', ok: pw.length >= 12 },
+    { id: 'length', label: `${PASSWORD_MIN_LENGTH} or more characters`, ok: pw.length >= PASSWORD_MIN_LENGTH },
     { id: 'case', label: 'Uppercase and lowercase letters', ok: /[a-z]/.test(pw) && /[A-Z]/.test(pw) },
     { id: 'number', label: 'At least one number', ok: /\d/.test(pw) },
     { id: 'special', label: 'At least one special character (!@#$…)', ok: /[^A-Za-z0-9]/.test(pw) },

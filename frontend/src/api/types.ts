@@ -140,6 +140,7 @@ export interface Meta {
   week_start: 'sunday' | 'monday';
   long_session_hours: number;
   max_session_hours: number;
+  password_min_length: number;
 }
 
 export interface NamedHours extends Duration {

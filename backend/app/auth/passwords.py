@@ -11,14 +11,14 @@ from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError, VerifyMismatchError
 
 from ..config import get_settings
-from ..enums import shared_file
+from ..enums import PASSWORD_MIN_LENGTH, shared_file
 
 log = logging.getLogger(__name__)
 
 # argon2-cffi defaults to Argon2id with RFC 9106 low-memory parameters.
 _hasher = PasswordHasher()
 
-MIN_LENGTH = 12
+MIN_LENGTH = PASSWORD_MIN_LENGTH  # shared/enums.json, same value the frontend uses
 _SPECIAL = re.compile(r"[^A-Za-z0-9]")
 _LEET = str.maketrans({"@": "a", "4": "a", "0": "o", "1": "i", "!": "i", "3": "e", "$": "s", "5": "s", "7": "t"})
 

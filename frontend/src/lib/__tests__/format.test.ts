@@ -34,8 +34,14 @@ describe('password checklist', () => {
   it('passes a strong password', () => {
     expect(passwordChecks('Seva-Kitchen-42!').every((c) => c.ok)).toBe(true);
   });
+  it('accepts 6 characters and rejects 5', () => {
+    const ok = (pw: string) => passwordChecks(pw).find((c) => c.id === 'length')!.ok;
+    expect(ok('Sv7!kq')).toBe(true);
+    expect(ok('Sv7!k')).toBe(false);
+    expect(passwordChecks('Sv7!kq').every((c) => c.ok)).toBe(true);
+  });
   it('flags weak and common passwords', () => {
-    const checks = Object.fromEntries(passwordChecks('password').map((c) => [c.id, c.ok]));
+    const checks = Object.fromEntries(passwordChecks('pass').map((c) => [c.id, c.ok]));
     expect(checks).toMatchObject({ length: false, case: false, number: false, special: false, common: false });
     expect(isCommonPassword('Welcome@2024!!')).toBe(true);
     expect(isCommonPassword('P@ssw0rd12345!')).toBe(true);

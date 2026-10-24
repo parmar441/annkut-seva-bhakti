@@ -8,6 +8,7 @@ import { ApiError } from '../../api/client';
 import { PasswordField, TextField } from '../../components/Field';
 import { Button, PasswordStrength } from '../../components/ui';
 import { useToast } from '../../components/Toast';
+import { PASSWORD_MIN_LENGTH } from '../../lib/enums';
 import { passwordChecks } from '../../lib/password';
 
 const schema = z
@@ -107,7 +108,7 @@ export default function ResetPassword() {
         <PasswordField
           label="New password"
           autoComplete="new-password"
-          placeholder="At least 12 characters"
+          placeholder={`At least ${PASSWORD_MIN_LENGTH} characters`}
           error={errors.password?.message}
           required
           after={<PasswordStrength checks={passwordChecks(password)} />}

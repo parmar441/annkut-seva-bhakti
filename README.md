@@ -77,7 +77,7 @@ Backend tests use an in-memory Mongo mock (`mongomock-motor`). They cover durati
 
 ### Security
 
-- Passwords are hashed with Argon2id. The policy requires 12+ characters, upper and lower case, a number and a symbol, and rejects passwords on the bundled common list (including tricks like `P@ssw0rd123!`). HaveIBeenPwned checks are optional (`HIBP_ENABLED`).
+- Passwords are hashed with Argon2id. The policy requires at least 6 characters (`password_min_length` in `shared/enums.json`), upper and lower case, a number and a symbol, and rejects passwords on the bundled common list (including tricks like `P@ssw0rd123!`). HaveIBeenPwned checks are optional (`HIBP_ENABLED`).
 - The access token is a 15-minute JWT. The refresh token lasts 7 days, rotates on every use and is stored server-side as a SHA-256 hash. Reusing an old refresh token revokes all of that user's sessions. Both are `HttpOnly`, `SameSite=Lax` cookies, and `Secure` in production.
 - CSRF protection uses a double-submit token (`csrf_token` cookie plus `X-CSRF-Token` header) and an Origin check on every mutating `/api` request.
 - Login and registration are rate-limited (slowapi).

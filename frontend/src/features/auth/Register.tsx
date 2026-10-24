@@ -8,7 +8,7 @@ import { ApiError } from '../../api/client';
 import { PasswordField, SelectField, TextField } from '../../components/Field';
 import { Button, PasswordStrength } from '../../components/ui';
 import { useToast } from '../../components/Toast';
-import { MANDAL_NAMES, MANDAL_TYPES } from '../../lib/enums';
+import { MANDAL_NAMES, MANDAL_TYPES, PASSWORD_MIN_LENGTH } from '../../lib/enums';
 import { passwordChecks } from '../../lib/password';
 
 const schema = z
@@ -102,7 +102,7 @@ export default function Register() {
         <PasswordField
           label="Password"
           autoComplete="new-password"
-          placeholder="At least 12 characters"
+          placeholder={`At least ${PASSWORD_MIN_LENGTH} characters`}
           error={errors.password?.message}
           required
           after={<PasswordStrength checks={passwordChecks(password)} />}

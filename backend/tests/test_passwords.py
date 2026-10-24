@@ -10,7 +10,7 @@ def test_strong_password_passes():
 @pytest.mark.parametrize(
     "pw,fragment",
     [
-        ("Short1!a", "12 characters"),
+        ("Sh1!a", "6 characters"),
         ("alllowercase123!", "uppercase and lowercase"),
         ("ALLUPPERCASE123!", "uppercase and lowercase"),
         ("NoDigitsHere!!ab", "number"),
@@ -42,3 +42,8 @@ def test_argon2id_hash_and_verify():
     assert verify_password("Seva-Kitchen-42!", h)
     assert not verify_password("seva-kitchen-42!", h)
     assert not verify_password("anything", "not-a-hash")
+
+
+def test_six_characters_is_the_minimum():
+    assert password_problems("Sv7!kq") == []  # exactly 6, meets every other rule
+    assert any("6 characters" in p for p in password_problems("Sv7!k"))  # 5 is too short

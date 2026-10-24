@@ -26,6 +26,7 @@ MandalType = Enum("MandalType", {v.upper(): v for v in _DATA["mandal_types"]}, t
 
 MANDAL_NAMES: list[str] = list(_DATA["mandal_names"])
 MANDAL_TYPES: list[str] = list(_DATA["mandal_types"])
+PASSWORD_MIN_LENGTH: int = int(_DATA["password_min_length"])
 
 
 class Role(str, Enum):

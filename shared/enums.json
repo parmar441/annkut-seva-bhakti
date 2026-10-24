@@ -1,5 +1,23 @@
 {
-  "mandal_names": ["Edison", "Jersey City", "Clifton", "Parsippany", "Passaic", "Pennsylvania"],
-  "mandal_types": ["Kishori", "Yuvti", "Sahid", "Sahradayi"],
-  "session_flags": ["missing_clock_out", "overlap", "long_session", "manual_entry"]
+  "mandal_names": [
+    "Edison",
+    "Jersey City",
+    "Clifton",
+    "Parsippany",
+    "Passaic",
+    "Pennsylvania"
+  ],
+  "mandal_types": [
+    "Kishori",
+    "Yuvti",
+    "Sahid",
+    "Sahradayi"
+  ],
+  "session_flags": [
+    "missing_clock_out",
+    "overlap",
+    "long_session",
+    "manual_entry"
+  ],
+  "password_min_length": 6
 }
