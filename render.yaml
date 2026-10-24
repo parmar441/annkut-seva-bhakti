@@ -6,7 +6,7 @@ services:
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    plan: starter            # free also works, but sleeps after 15 min idle (≈1 min cold start)
+    plan: free               # no card needed. Sleeps after 15 min idle (first visit then takes ~1 min)
     region: virginia         # close to America/New_York volunteers
     healthCheckPath: /api/health
     autoDeploy: true
@@ -27,11 +27,12 @@ services:
         value: America/New_York
       - key: WEEK_START
         value: sunday
-      # Sized for a 512 MB instance: 1 process, 3 parallel password checks (~64 MB each).
-      # On a 2 GB plan (Standard) use WEB_CONCURRENCY=2 and HASH_CONCURRENCY=8.
+      # Sized for the free instance (512 MB, 0.1 CPU): 1 process, 2 parallel password checks
+      # (~64 MB each). More parallelism wouldn't help on 0.1 CPU and would only use memory.
+      # On a paid 2 GB plan (Standard) use WEB_CONCURRENCY=2 and HASH_CONCURRENCY=8.
       - key: WEB_CONCURRENCY
         value: "1"
       - key: HASH_CONCURRENCY
-        value: "3"
+        value: "2"
       - key: MONGO_MAX_POOL_SIZE
         value: "100"

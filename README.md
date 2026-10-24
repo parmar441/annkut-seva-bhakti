@@ -26,11 +26,11 @@ Open http://localhost:8080. nginx serves the app and proxies `/api` to the backe
 
 1. **MongoDB Atlas:** under Network Access, allow `0.0.0.0/0`, because Render's outbound IPs change unless you buy static IPs. The database password still protects the cluster.
 2. **Render:** go to Dashboard → **New → Blueprint**, pick this repository, and enter `MONGO_URL` (your Atlas `mongodb+srv://…` string) when prompted. `JWT_SECRET` is generated for you, and `RENDER_EXTERNAL_URL` is picked up automatically for the origin check.
-3. After the first deploy, open the Render **Shell** and create the first admin:
+3. Create the first admin from your own machine, with `backend/.env` pointing at the same Atlas database (the free plan has no Shell):
    `python -m app.scripts.create_admin --username organizer --full-name "Edison Organizer" --mandal-name Edison --mandal-type Yuvti`
    You can skip this if an admin already exists in the database.
 
-Sizing: the Blueprint uses the Starter plan (512 MB) with 1 process and 3 parallel password checks. The free plan works too, but it sleeps after 15 minutes idle, and the first visit after that takes about a minute. For big sign-in rushes, move to Standard (2 GB) and set `WEB_CONCURRENCY=2` and `HASH_CONCURRENCY=8`.
+Sizing: the Blueprint uses Render's **free** plan (512 MB, 0.1 CPU) with 1 process and 2 parallel password checks. The free plan sleeps after 15 minutes idle, so the first visit after that takes about a minute. Each sign-in costs about 0.4 s of its CPU, so a rush of 500 sign-ins takes a few minutes to clear. All of them succeed, but people wait. Before a big event, switch to a paid plan (Standard, 2 GB) and set `WEB_CONCURRENCY=2` and `HASH_CONCURRENCY=8`. On the free plan there is no Shell, so create admins locally with the CLI pointed at the same Atlas database.
 
 ## Local development
 
