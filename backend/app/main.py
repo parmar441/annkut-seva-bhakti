@@ -4,8 +4,11 @@ import logging
 import uuid
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from pathlib import Path
+
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.middleware import SlowAPIMiddleware
 
@@ -90,7 +93,7 @@ def create_app(*, start_background: bool = True) -> FastAPI:
     app.add_middleware(CSRFMiddleware)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.cors_origins,
+        allow_origins=settings.allowed_origins,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "X-CSRF-Token"],
@@ -130,7 +133,30 @@ def create_app(*, start_background: bool = True) -> FastAPI:
             return JSONResponse(status_code=503, content={"status": "unavailable", "database": "unreachable"})
         return {"status": "ok", "database": "ok"}
 
+    if settings.static_dir:
+        _serve_frontend(app, Path(settings.static_dir))
+
     return app
+
+
+def _serve_frontend(app: FastAPI, root: Path) -> None:
+    """Serve the built React app on the same origin as the API, so auth cookies stay first-party."""
+    index = root / "index.html"
+    if not index.is_file():
+        log.warning("STATIC_DIR %s has no index.html; not serving the frontend", root)
+        return
+    app.mount("/assets", StaticFiles(directory=root / "assets"), name="assets")
+
+    @app.get("/{path:path}", include_in_schema=False)
+    @limiter.exempt
+    async def spa(path: str, request: Request):
+        if path.startswith("api/"):
+            return JSONResponse(status_code=404, content={"error": {"code": "NOT_FOUND", "message": "Not found."}})
+        candidate = (root / path).resolve()
+        if path and candidate.is_file() and candidate.is_relative_to(root.resolve()):
+            return FileResponse(candidate)
+        # Client-side routes (/history, /admin/...) all load index.html; never cache it.
+        return FileResponse(index, headers={"Cache-Control": "no-cache"})
 
 
 app = create_app()

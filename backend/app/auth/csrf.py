@@ -23,7 +23,7 @@ class CSRFMiddleware(BaseHTTPMiddleware):
 
         origin = request.headers.get("origin")
         if origin:
-            allowed = set(get_settings().cors_origins)
+            allowed = set(get_settings().allowed_origins)
             own = f"{request.url.scheme}://{request.url.netloc}"
             if origin != own and origin not in allowed:
                 return _reject("Request origin not allowed.")

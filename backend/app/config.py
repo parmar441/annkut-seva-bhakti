@@ -1,7 +1,7 @@
 from functools import lru_cache
 from zoneinfo import ZoneInfo
 
-from pydantic import field_validator, model_validator
+from pydantic import AliasChoices, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,6 +25,10 @@ class Settings(BaseSettings):
 
     # Origins allowed to call the API with cookies (CORS + Origin check for CSRF).
     cors_origins: list[str] = ["http://localhost:5173"]
+    # Public URL of this deployment. Render sets RENDER_EXTERNAL_URL automatically.
+    public_url: str | None = Field(default=None, validation_alias=AliasChoices("PUBLIC_URL", "RENDER_EXTERNAL_URL"))
+    # Built frontend (frontend/dist) to serve from the same origin as the API, if present.
+    static_dir: str | None = None
 
     mongo_max_pool_size: int = 200
     mongo_timeout_ms: int = 8000  # fail fast with a 503 instead of hanging when the DB is unreachable
@@ -82,6 +86,13 @@ class Settings(BaseSettings):
             if self.mongo_url.startswith("mongomock://"):
                 raise ValueError("The in-memory database can't be used in production.")
         return self
+
+    @property
+    def allowed_origins(self) -> list[str]:
+        origins = list(self.cors_origins)
+        if self.public_url:
+            origins.append(self.public_url.rstrip("/"))
+        return origins
 
     @property
     def tz(self) -> ZoneInfo:

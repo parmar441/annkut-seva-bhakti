@@ -6,3 +6,6 @@ frontend/dist
 design
 *credentials*.env
 .git
+backend/.env
+backend/tests
+frontend/src/**/__tests__
