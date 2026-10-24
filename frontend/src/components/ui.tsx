@@ -4,15 +4,12 @@ import { Check, Circle } from 'lucide-react';
 import type { DisplayStatus, Duration } from '../api/types';
 import type { PasswordCheck } from '../lib/password';
 
+/** Harisumiran mark (from harisumiran.org) on a white tile. */
 export function Logo({ size = 72 }: { size?: number }) {
-  const icon = Math.round(size * 0.53);
+  const mark = Math.round(size * 0.78);
   return (
-    <div className="logo" style={{ width: size, height: size }} aria-hidden="true">
-      <svg width={icon} height={icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3.5 13.5c0 3.4 3.8 5.5 8.5 5.5s8.5-2.1 8.5-5.5z" />
-        <path d="M12 3.5c1.6 2.1 2.2 3.5 2.2 4.8a2.2 2.2 0 0 1-4.4 0c0-1.3.6-2.7 2.2-4.8z" />
-        <path d="M9 21.5h6" />
-      </svg>
+    <div className="logo" style={{ width: size, height: size, borderRadius: Math.round(size * 0.3) }} aria-hidden="true">
+      <img src="/logo-mark.png" alt="" width={mark} height={mark} decoding="async" />
     </div>
   );
 }

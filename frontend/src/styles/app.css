@@ -240,11 +240,24 @@ textarea::placeholder {
   width: 72px;
   height: 72px;
   border-radius: var(--radius-xl);
-  background: var(--accent);
-  color: #fff;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(28, 25, 23, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: none;
+}
+.logo img {
+  display: block;
+  object-fit: contain;
+}
+.brand .org {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #576e98; /* Harisumiran slate blue, darkened slightly to 4.7:1 on the page background */
 }
 
 .form {
@@ -1140,9 +1153,7 @@ a.list-row:hover {
     font-size: 15px;
   }
   .side-nav .brand-row .logo {
-    width: 36px;
-    height: 36px;
-    border-radius: 11px;
+    box-shadow: none;
   }
   .side-nav .nav-item {
     flex-direction: row;

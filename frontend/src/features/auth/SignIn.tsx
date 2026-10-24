@@ -36,7 +36,8 @@ export default function SignIn() {
     <div className="auth">
       <div className="brand">
         <Logo />
-        <h1>Annkut Seva Bhakti</h1>
+        <p className="org">Harisumiran</p>
+        <h1 style={{ marginTop: -8 }}>Annkut Seva Bhakti</h1>
         <p>Track your seva hours with ease</p>
       </div>
       <form className="form" style={{ marginTop: 40 }} onSubmit={onSubmit} noValidate>
