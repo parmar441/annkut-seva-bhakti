@@ -1,7 +1,7 @@
-import type { ReactNode } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { BarChart3, Clock, Filter, Flag, Home, LogOut, Users } from 'lucide-react';
-import { useLogout } from '../api/hooks';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { BarChart3, CircleUser, Clock, Filter, Flag, Home, LogOut, Users } from 'lucide-react';
+import { useLogout, useMe } from '../api/hooks';
 import { useToast } from './Toast';
 import { Logo } from './ui';
 
@@ -11,7 +11,7 @@ function navClass() {
   return 'nav-item';
 }
 
-function SignOutButton({ className = 'nav-item' }: { className?: string }) {
+function SignOutButton({ className = 'nav-item', role, iconSize = 24 }: { className?: string; role?: string; iconSize?: number }) {
   const logout = useLogout();
   const navigate = useNavigate();
   const toast = useToast();
@@ -19,6 +19,7 @@ function SignOutButton({ className = 'nav-item' }: { className?: string }) {
     <button
       type="button"
       className={className}
+      role={role}
       disabled={logout.isPending}
       onClick={() =>
         logout.mutate(undefined, {
@@ -29,14 +30,15 @@ function SignOutButton({ className = 'nav-item' }: { className?: string }) {
         })
       }
     >
-      <LogOut {...ICON} />
-      Sign out
+      <LogOut {...ICON} size={iconSize} />
+      {logout.isPending ? 'Signing out…' : 'Sign out'}
     </button>
   );
 }
 
 /** Volunteer app: centered phone-width column with the bottom nav. */
 export function VolunteerShell({ wide }: { wide?: boolean }) {
+  const me = useMe();
   return (
     <div className={`app-column${wide ? ' wide' : ''}`}>
       <main id="main" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -51,6 +53,12 @@ export function VolunteerShell({ wide }: { wide?: boolean }) {
           <Clock {...ICON} />
           History
         </NavLink>
+        {me.data?.role === 'admin' && (
+          <NavLink to="/admin" className={navClass}>
+            <BarChart3 {...ICON} />
+            Admin
+          </NavLink>
+        )}
         <SignOutButton />
       </nav>
     </div>
@@ -114,6 +122,69 @@ export function AdminShell() {
   );
 }
 
+/** Phones only: My seva and Sign out (the sidebar has these from 768px). */
+export function AdminAccountMenu() {
+  const me = useMe();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
+  const location = useLocation();
+
+  useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        buttonRef.current?.focus();
+      }
+    };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    ref.current?.querySelector<HTMLElement>('[role=menuitem]')?.focus();
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="account-menu" ref={ref}>
+      <button
+        ref={buttonRef}
+        type="button"
+        className="icon-btn"
+        aria-label="Account menu"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={menuId}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <CircleUser size={26} strokeWidth={1.9} aria-hidden="true" />
+      </button>
+      {open && (
+        <div id={menuId} role="menu" aria-label="Account" className="menu-pop">
+          {me.data && (
+            <p className="menu-who">
+              <strong>{me.data.full_name}</strong>
+              <span>@{me.data.username}</span>
+            </p>
+          )}
+          <Link to="/" role="menuitem" className="menu-item">
+            <Home size={20} strokeWidth={1.9} aria-hidden="true" />
+            My seva
+          </Link>
+          <SignOutButton className="menu-item" role="menuitem" iconSize={20} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function AdminHeader({ title, aside }: { title: string; aside?: ReactNode }) {
   return (
     <header className="page-header" style={{ alignItems: 'flex-end' }}>
@@ -121,7 +192,10 @@ export function AdminHeader({ title, aside }: { title: string; aside?: ReactNode
         <span className="admin-badge">ADMIN</span>
         <h1 className="page-title">{title}</h1>
       </div>
-      {aside}
+      <div className="row" style={{ gap: 4, alignItems: 'center' }}>
+        {aside}
+        <AdminAccountMenu />
+      </div>
     </header>
   );
 }

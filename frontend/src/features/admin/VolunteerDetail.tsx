@@ -8,6 +8,7 @@ import { DurationStat, EmptyState, ErrorState, Pagination, Skeleton, StatCard, S
 import { useToast } from '../../components/Toast';
 import { TextField } from '../../components/Field';
 import { PasswordResetCard } from './PasswordReset';
+import { AdminAccountMenu } from '../../components/Shells';
 import { formatCalendarDate, formatDateTime, formatTime, initials } from '../../lib/format';
 
 export default function VolunteerDetail() {
@@ -38,6 +39,8 @@ export default function VolunteerDetail() {
           <ChevronLeft size={22} strokeWidth={2} aria-hidden="true" />
         </Link>
         <span className="admin-badge">ADMIN</span>
+        <div className="spacer" />
+        <AdminAccountMenu />
       </header>
       <section className="card stack" aria-label="Profile">
         <div className="row" style={{ gap: 12 }}>
