@@ -350,3 +350,22 @@ export function useSetSecurityQuestion() {
     },
   });
 }
+
+// ---------- admin: delete / restore a session ----------
+
+export function useDeleteSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      api<{ deleted: string }>(`/api/admin/sessions/${id}/delete`, { method: 'POST', body: { reason } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.admin }),
+  });
+}
+
+export function useRestoreSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api<{ session: AdminSession }>(`/api/admin/sessions/${id}/restore`, { method: 'POST' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.admin }),
+  });
+}

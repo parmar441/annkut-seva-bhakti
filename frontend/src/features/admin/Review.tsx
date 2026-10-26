@@ -11,6 +11,7 @@ import { auditSubject, describeActor, describeChange, userReason } from '../../l
 import { formatCalendarDate, formatTime, localParts, toLocalInput, todayLocal } from '../../lib/format';
 import { usePreview } from '../../lib/usePreview';
 import { OverlapAlert } from '../history/EditSession';
+import { DeleteSessionControl } from './DeleteSession';
 
 const TAB_LABEL: Record<SessionFlag, string> = {
   missing_clock_out: 'Missing clock-out',
@@ -155,6 +156,13 @@ function CorrectionPanel({ item, onDone }: { item: AdminSession; onDone: () => v
       <Button variant="secondary" size="md" block loading={markReviewed.isPending} onClick={review}>
         Mark reviewed without changes
       </Button>
+      <div style={{ borderTop: '1px solid var(--surface-muted)', paddingTop: 12 }}>
+        <DeleteSessionControl
+          sessionId={item.id}
+          summary={`${item.volunteer?.full_name ?? 'Volunteer'} · ${formatCalendarDate(item.local_date, false)}, ${formatTime(item.clock_in)} – ${item.clock_out ? formatTime(item.clock_out) : 'no clock-out'}`}
+          onDeleted={onDone}
+        />
+      </div>
     </section>
   );
 }

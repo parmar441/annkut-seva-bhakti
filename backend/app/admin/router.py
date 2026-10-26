@@ -7,7 +7,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from ..audit.service import audit_public, write_audit
 from ..auth.deps import db_dep, require_admin
@@ -382,6 +382,26 @@ async def mark_reviewed(
     updated = await sessions.mark_reviewed(db, doc, admin, body.reason)
     updated = (await _with_volunteers(db, [updated]))[0]
     return {"session": _row(updated, utcnow())}
+
+
+class DeleteIn(BaseModel):
+    reason: str = Field(min_length=1, max_length=500)
+
+
+@router.post("/sessions/{session_id}/delete")
+async def delete_session(
+    session_id: str, body: DeleteIn, admin: dict = Depends(require_admin), db: AsyncIOMotorDatabase = Depends(db_dep)
+):
+    doc = await _session(db, session_id)
+    await sessions.delete_session(db, doc, admin, body.reason)
+    return {"deleted": str(doc["_id"])}
+
+
+@router.post("/sessions/{session_id}/restore")
+async def restore_session(session_id: str, admin: dict = Depends(require_admin), db: AsyncIOMotorDatabase = Depends(db_dep)):
+    doc = await sessions.restore_session(db, parse_oid(session_id, "Session"), admin)
+    doc = (await _with_volunteers(db, [doc]))[0]
+    return {"session": _row(doc, utcnow())}
 
 
 @router.get("/audit")

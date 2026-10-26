@@ -414,6 +414,59 @@ async def preview(
     }
 
 
+# ---------- admin delete / restore ----------
+
+
+async def delete_session(db: AsyncIOMotorDatabase, session: dict, admin: dict, reason: str) -> None:
+    """Remove a session an organizer doesn't accept. It moves to deleted_sessions (so it can be restored),
+    disappears from every list and total, and the deletion is audit-logged."""
+    reason = reason.strip()
+    if not reason:
+        raise AppError(422, "REASON_REQUIRED", "Please give a reason for deleting this session.", {"reason": "A reason is required."})
+    now = utcnow()
+    archived = {**session, "deleted_at": now, "deleted_by": admin["_id"], "deleted_by_username": admin["username"],
+                "delete_reason": reason}
+    await db.deleted_sessions.replace_one({"_id": session["_id"]}, archived, upsert=True)
+    result = await db.seva_sessions.delete_one({"_id": session["_id"]})
+    if result.deleted_count != 1:
+        raise AppError(409, "EDIT_CONFLICT", "This session was already removed. Refresh and try again.")
+
+    # Sessions that were flagged only because they overlapped this one are no longer overlapping it.
+    async for other in db.seva_sessions.find({"overlap_with": session["_id"]}):
+        remaining = [x for x in other.get("overlap_with", []) if x != session["_id"]]
+        update: dict = {"overlap_with": remaining}
+        if not remaining:
+            flags = [f for f in other.get("flags", []) if f != SessionFlag.OVERLAP.value]
+            update["flags"] = flags
+            if not flags:
+                update["needs_review"] = False
+        await db.seva_sessions.update_one({"_id": other["_id"]}, {"$set": update})
+
+    await write_audit(
+        db, entity="seva_session", entity_id=session["_id"], action=AuditAction.DELETE, actor=admin,
+        before=_snapshot(session), after=None, reason=reason, owner_id=session["user_id"],
+    )
+
+
+async def restore_session(db: AsyncIOMotorDatabase, session_id: ObjectId, admin: dict) -> dict:
+    archived = await db.deleted_sessions.find_one({"_id": session_id})
+    if archived is None:
+        raise AppError(404, "NOT_FOUND", "There is no deleted session to restore.")
+    doc = {k: v for k, v in archived.items() if k not in ("deleted_at", "deleted_by", "deleted_by_username", "delete_reason")}
+    if doc["status"] == SessionStatus.ACTIVE.value and await get_active_session(db, doc["user_id"]):
+        raise AppError(409, "SESSION_ALREADY_ACTIVE", "This volunteer has started a new session since. End it before restoring.")
+    try:
+        await db.seva_sessions.insert_one(doc)
+    except DuplicateKeyError:
+        raise AppError(409, "SESSION_ALREADY_ACTIVE", "This volunteer has started a new session since. End it before restoring.") from None
+    await db.deleted_sessions.delete_one({"_id": session_id})
+    await write_audit(
+        db, entity="seva_session", entity_id=session_id, action=AuditAction.RESTORE, actor=admin,
+        before=None, after=_snapshot(doc), reason="Deletion undone", owner_id=doc["user_id"],
+    )
+    return doc
+
+
 # ---------- background sweep ----------
 
 

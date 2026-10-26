@@ -122,7 +122,7 @@ export interface AuditEntry {
   id: string;
   entity: 'seva_session' | 'user';
   entity_id: string;
-  action: 'create' | 'update' | 'correct' | 'review' | 'activate' | 'deactivate' | 'reset_issued' | 'password_reset';
+  action: 'create' | 'update' | 'correct' | 'review' | 'activate' | 'deactivate' | 'reset_issued' | 'password_reset' | 'delete' | 'restore';
   actor_id: string | null;
   actor_role: string;
   actor_username: string | null;

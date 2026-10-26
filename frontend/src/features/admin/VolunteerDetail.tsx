@@ -8,6 +8,7 @@ import { DurationStat, EmptyState, ErrorState, Pagination, Skeleton, StatCard, S
 import { useToast } from '../../components/Toast';
 import { TextField } from '../../components/Field';
 import { PasswordResetCard } from './PasswordReset';
+import { DeleteSessionControl } from './DeleteSession';
 import { AdminAccountMenu } from '../../components/Shells';
 import { formatCalendarDate, formatDateTime, formatTime, initials } from '../../lib/format';
 
@@ -98,15 +99,24 @@ export default function VolunteerDetail() {
           <>
             <div className="list">
               {sessions.data.items.map((s) => (
-                <div key={s.id} className="list-row" style={{ alignItems: 'flex-start' }}>
-                  <div className="main">
-                    <p className="title">{formatCalendarDate(s.local_date)}</p>
-                    <p className="meta">
-                      {formatTime(s.clock_in)} – {formatTime(s.clock_out)} · {durationText(s, s.elapsed_seconds)}
-                    </p>
-                    {sessionNote(s) && <p className="meta">{sessionNote(s)}</p>}
+                <div key={s.id} className="list-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
+                  <div className="row" style={{ alignItems: 'flex-start', gap: 12 }}>
+                    <div className="main">
+                      <p className="title">{formatCalendarDate(s.local_date)}</p>
+                      <p className="meta">
+                        {formatTime(s.clock_in)} – {formatTime(s.clock_out)} · {durationText(s, s.elapsed_seconds)}
+                      </p>
+                      {sessionNote(s) && <p className="meta">{sessionNote(s)}</p>}
+                    </div>
+                    <StatusPill status={s.display_status} />
                   </div>
-                  <StatusPill status={s.display_status} />
+                  <div style={{ alignSelf: 'flex-end', width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+                    <DeleteSessionControl
+                      compact
+                      sessionId={s.id}
+                      summary={`${user.full_name} · ${formatCalendarDate(s.local_date, false)}, ${formatTime(s.clock_in)} – ${s.clock_out ? formatTime(s.clock_out) : 'no clock-out'}`}
+                    />
+                  </div>
                 </div>
               ))}
             </div>

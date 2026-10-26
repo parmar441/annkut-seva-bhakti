@@ -1290,6 +1290,47 @@ a.list-row:hover {
 .toast.error {
   background: var(--danger);
 }
+.toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.toast-action {
+  flex: none;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.delete-confirm {
+  width: 100%;
+  background: var(--danger-bg);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.btn-danger:hover:not(:disabled) {
+  background: #991b1b;
+  color: #fff;
+}
+.btn-danger-outline {
+  background: var(--surface);
+  color: var(--danger);
+  border: 1.5px solid #f3b4b4;
+}
+.btn-danger-outline:hover:not(:disabled) {
+  color: var(--danger);
+  border-color: var(--danger);
+}
 
 .panel-raised {
   box-shadow: 0 8px 24px rgba(28, 25, 23, 0.08);

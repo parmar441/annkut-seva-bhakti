@@ -29,6 +29,8 @@ export function describeChange(e: AuditEntry): string {
     return e.reason === 'Clock in' ? 'Session created by clock-in' : `Session added manually (${formatTime(str(a.clock_in))} – ${formatTime(str(a.clock_out))})`;
   }
   if (e.action === 'review') return 'Marked as reviewed';
+  if (e.action === 'delete') return `Session deleted (${formatTime(str(b.clock_in))} – ${formatTime(str(b.clock_out))})`;
+  if (e.action === 'restore') return 'Deleted session restored';
   if (e.reason === 'Clock out' && e.action === 'update') return `Clocked out at ${formatTime(str(a.clock_out))}`;
   const parts = [timeChange('Clock-in', str(b.clock_in), str(a.clock_in)), timeChange('Clock-out', str(b.clock_out), str(a.clock_out))].filter(Boolean);
   return parts.length ? parts.join(' · ') : 'Session updated';
@@ -50,6 +52,6 @@ export function auditSubject(e: AuditEntry): string {
 
 /** Reason shown in quotes, hidden for system-generated reasons. */
 export function userReason(e: AuditEntry): string | null {
-  if (!e.reason || ['Clock in', 'Clock out', 'Manual entry', 'Marked reviewed', 'Self-registration', 'Password reset code issued', 'Password reset with organizer code'].includes(e.reason)) return null;
+  if (!e.reason || ['Clock in', 'Clock out', 'Manual entry', 'Marked reviewed', 'Self-registration', 'Password reset code issued', 'Password reset with organizer code', 'Deletion undone'].includes(e.reason)) return null;
   return e.reason;
 }

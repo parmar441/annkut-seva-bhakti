@@ -74,6 +74,9 @@ async def ensure_indexes(db: AsyncIOMotorDatabase) -> None:
             partialFilterExpression={"status": "active"},
             name="one_active_session_per_user",
         )
+    await db.deleted_sessions.create_indexes(
+        [IndexModel([("user_id", ASCENDING), ("deleted_at", DESCENDING)])]
+    )
     await db.audit_logs.create_indexes(
         [
             IndexModel([("entity_id", ASCENDING), ("created_at", DESCENDING)]),

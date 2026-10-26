@@ -17,7 +17,7 @@ export function Logo({ size = 72 }: { size?: number }) {
   );
 }
 
-type Variant = 'primary' | 'secondary' | 'inverse' | 'ghost';
+type Variant = 'primary' | 'secondary' | 'inverse' | 'ghost' | 'danger' | 'danger-outline';
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
   size?: 'lg' | 'md' | 'sm';

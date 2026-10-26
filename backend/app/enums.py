@@ -58,6 +58,8 @@ class AuditAction(str, Enum):
     UPDATE = "update"
     CORRECT = "correct"
     REVIEW = "review"
+    DELETE = "delete"
+    RESTORE = "restore"
     ACTIVATE = "activate"
     DEACTIVATE = "deactivate"
     RESET_ISSUED = "reset_issued"

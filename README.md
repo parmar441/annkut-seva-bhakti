@@ -102,7 +102,9 @@ Backend tests use an in-memory Mongo mock (`mongomock-motor`). They cover durati
 | `overlap` | Overlaps another of the volunteer's sessions. Saving returns 409 until the volunteer confirms, and confirmed overlaps are flagged. |
 | `manual_entry` | Added or edited by a volunteer. |
 
-A reason is required when a volunteer edits a completed session, and for every admin correction. Each change writes an `audit_logs` record with the before and after values, the reason, the actor and a timestamp.
+A reason is required when a volunteer edits a completed session, and for every admin correction.
+
+**Deleting hours:** an organizer who doesn't accept a session can delete it from the **Review** correction panel, or from a volunteer's history (**Volunteers → View history → Delete**). A reason is required. The session is moved to a `deleted_sessions` archive rather than erased, so it disappears from the volunteer's history and totals, reports, exports and stats but can be restored with **Undo** in the confirmation. Any other session flagged only because it overlapped the deleted one is cleared. Deletes and restores are recorded in the audit log. Each change writes an `audit_logs` record with the before and after values, the reason, the actor and a timestamp.
 
 ## Forgotten passwords
 
