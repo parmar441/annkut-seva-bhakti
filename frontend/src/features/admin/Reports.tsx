@@ -9,7 +9,6 @@ import { AdminHeader } from '../../components/Shells';
 import { SelectField, TextField } from '../../components/Field';
 import { EmptyState, ErrorState, Pagination, Segmented, Skeleton, StatusPill, type Option } from '../../components/ui';
 import { MANDAL_NAMES, MANDAL_TYPES } from '../../lib/enums';
-import { TopCountPicker, TopVolunteerList, readChoice, saveChoice } from '../../components/TopVolunteers';
 import { formatCalendarDate, formatTimeCompact, formatTime } from '../../lib/format';
 
 type Status = 'all' | 'active' | 'completed' | 'flagged';
@@ -19,8 +18,6 @@ const STATUSES: Option<Status>[] = [
   { id: 'completed', label: 'Done' },
   { id: 'flagged', label: 'Flagged' },
 ];
-const TOP_COUNTS = ['10', '25', '50'] as const;
-type TopCount = (typeof TOP_COUNTS)[number];
 
 const SORTS = [
   { id: 'date', label: 'Seva date' },
@@ -116,8 +113,6 @@ export default function Reports() {
   const report = useAdminReport({ ...filters, sort, order, page, page_size: pageSize });
   const byMandal = useAdminTotals({ ...filters, group_by: 'mandal_name' });
   const byType = useAdminTotals({ ...filters, group_by: 'mandal_type' });
-  const [topCount, setTopCount] = useState<TopCount>(() => readChoice('reports.topCount', TOP_COUNTS, '10'));
-  const topVolunteers = useAdminTotals({ ...filters, group_by: 'volunteer', limit: Number(topCount) });
   const data = report.data;
 
   const toast = useToast();
@@ -210,34 +205,6 @@ export default function Reports() {
             </table>
             </div>
           ))}
-        </div>
-      </details>
-
-      <details className="card" open>
-        <summary style={{ fontWeight: 800, fontSize: 15, cursor: 'pointer', minHeight: 32 }}>Top volunteers by seva hours</summary>
-        <div className="stack" style={{ marginTop: 10 }}>
-          <p className="note">Follows the filters above. Pick a Mandal type to rank the volunteers in that type.</p>
-          <TopCountPicker
-            label="How many volunteers to show"
-            options={TOP_COUNTS}
-            value={topCount}
-            onChange={(v) => {
-              setTopCount(v);
-              saveChoice('reports.topCount', v);
-            }}
-          />
-          {topVolunteers.isError ? (
-            <ErrorState message={errorMessage(topVolunteers.error)} onRetry={() => topVolunteers.refetch()} />
-          ) : !topVolunteers.data ? (
-            <Skeleton count={3} height={44} />
-          ) : topVolunteers.data.items.length === 0 ? (
-            <p className="note">No seva hours match these filters.</p>
-          ) : (
-            <TopVolunteerList
-              label="Top volunteers"
-              items={topVolunteers.data.items.map((v) => ({ id: v.key, name: v.label, hours: `${v.hm} (${v.decimal_text})`, sessions: v.sessions }))}
-            />
-          )}
         </div>
       </details>
 

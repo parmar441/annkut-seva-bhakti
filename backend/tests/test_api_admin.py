@@ -153,20 +153,25 @@ async def test_totals_by_group(admin_client, make_user, make_client, clock):
     assert [(i["key"], i["seconds"]) for i in r["items"]] == [("2026-10-18", 13500), ("2026-10-19", 2700)]
 
 
-async def test_export_csv_full_set_with_summary(admin_client, make_user, make_client, clock, db):
+async def test_export_csv_one_row_per_volunteer_with_summary(admin_client, make_user, make_client, clock, db):
     await _seed(make_user, make_client, clock)
     await db.users.update_one({"username_lower": "meeras"}, {"$set": {"full_name": "=HYPERLINK(\"x\")"}})
-    r = await admin_client.get("/api/admin/sessions/export", params={"format": "csv", "preset": "month"})
+    r = await admin_client.get("/api/admin/sessions/export", params={"format": "csv"})
     assert r.status_code == 200
     assert "attachment" in r.headers["content-disposition"]
-    rows = list(csv.reader(io.StringIO(r.text.lstrip("﻿"))))
-    assert rows[0][:4] == ["Volunteer Name", "Username", "Mandal Name", "Mandal Type"]
-    data = rows[1:6]
-    assert len(data) == 5
-    assert any(row[0] == "'=HYPERLINK(\"x\")" for row in data)  # formula injection neutralised
+    rows = list(csv.reader(io.StringIO(r.text.lstrip("\ufeff"))))
+    assert rows[0] == [
+        "Rank", "Volunteer Name", "Username", "Mandal Name", "Mandal Type", "Sessions", "Total Hours (h m)", "Total Hours",
+    ]
+    # Each volunteer appears once, ranked by total hours; the live session is excluded from totals.
+    data = rows[1 : rows.index([])]
+    assert [(d[0], d[2], d[3], d[4], d[5], d[7]) for d in data] == [
+        ("1", "anjali.p", "Edison", "Yuvti", "2", "7.75"),
+        ("2", "meeras", "Jersey City", "Kishori", "2", "5.75"),
+    ]
+    assert data[1][1] == "'=HYPERLINK(\"x\")"  # formula injection neutralised
     flat = [",".join(r) for r in rows]
     assert any(line.startswith("Edison,") for line in flat)
-    assert any(line.startswith("Kishori,") for line in flat)
     # Mandal Type summary is ranked by hours with rank and share columns (Yuvti 27900s, Kishori 20700s).
     start = next(i for i, row in enumerate(rows) if row[:1] == ["Mandal Type"])
     assert rows[start] == ["Mandal Type", "Sessions", "Hours (h m)", "Hours", "Rank", "% of total"]
@@ -175,13 +180,22 @@ async def test_export_csv_full_set_with_summary(admin_client, make_user, make_cl
     assert [t[5] for t in types[2:]] == ["0.0", "0.0"]
 
 
+async def test_export_follows_filters(admin_client, make_user, make_client, clock):
+    await _seed(make_user, make_client, clock)
+    r = await admin_client.get("/api/admin/sessions/export", params={"format": "csv", "mandal_type": "Kishori"})
+    rows = list(csv.reader(io.StringIO(r.text.lstrip("\ufeff"))))
+    assert [d[2] for d in rows[1 : rows.index([])]] == ["meeras"]
+
+
 async def test_export_xlsx(admin_client, make_user, make_client, clock):
     await _seed(make_user, make_client, clock)
     r = await admin_client.get("/api/admin/sessions/export", params={"format": "xlsx"})
     assert r.status_code == 200
     wb = load_workbook(io.BytesIO(r.content))
-    assert wb.sheetnames == ["Sessions", "Summary"]
-    assert wb["Sessions"].max_row == 6
+    assert wb.sheetnames == ["Volunteers", "Summary"]
+    vols = list(wb["Volunteers"].iter_rows(values_only=True))
+    assert len(vols) == 3  # header + one row per volunteer
+    assert [(v[2], v[7]) for v in vols[1:]] == [("anjali.p", 7.75), ("meeras", 5.75)]
     summary = [row for row in wb["Summary"].iter_rows(values_only=True)]
     assert any(row and row[0] == "Edison" for row in summary)
 

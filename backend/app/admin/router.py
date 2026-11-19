@@ -306,10 +306,9 @@ async def report(
 async def export_report(
     format: Literal["csv", "xlsx"] = "csv",
     filters: ReportFilters = Depends(report_filters),
-    sort: SortField = "date",
-    order: Literal["asc", "desc"] = "desc",
     db: AsyncIOMotorDatabase = Depends(db_dep),
 ):
+    """One row per volunteer with their total hours for the filters, ranked by hours, plus a summary."""
     now = utcnow()
     match, a, b, info = await build_match(db, filters, now)
     total = await range_total(db, match, a, b, now, filters.include_active)
@@ -317,7 +316,14 @@ async def export_report(
     by_mandal = await grouped_totals(db, match, a, b, now, filters.include_active, lambda d: d["mandal_name"])
     by_type = await grouped_totals(db, match, a, b, now, filters.include_active, lambda d: d["mandal_type"])
     summary = export.summary_rows(describe(filters, info), total, by_mandal, by_type, now)
-    rows = export.iter_report_rows(db, report_pipeline(match, sort, order))
+    by_volunteer = await grouped_totals(db, match, a, b, now, filters.include_active, lambda d: d["user_id"])
+    users = {
+        u["_id"]: u
+        async for u in db.users.find(
+            {"_id": {"$in": list(by_volunteer)}}, {"full_name": 1, "username": 1, "mandal_name": 1, "mandal_type": 1}
+        )
+    }
+    rows = export.volunteer_rows(by_volunteer, users)
     stamp = local_date(now, get_settings().tz).isoformat()
     if format == "csv":
         return StreamingResponse(
@@ -325,7 +331,7 @@ async def export_report(
             media_type="text/csv; charset=utf-8",
             headers={"Content-Disposition": f'attachment; filename="seva-report-{stamp}.csv"'},
         )
-    f = await export.build_xlsx(rows, summary)
+    f = export.build_xlsx(rows, summary)
     return StreamingResponse(
         export.iter_file(f),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

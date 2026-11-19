@@ -1,34 +1,28 @@
-"""CSV and Excel export of the full filtered report, with totals by Mandal and Mandal Type."""
+"""CSV and Excel export: one row per volunteer with total hours, plus totals by Mandal and Mandal Type."""
 
 import csv
 import io
 import tempfile
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import Iterator
 from datetime import datetime
 
-from motor.motor_asyncio import AsyncIOMotorDatabase
 from openpyxl import Workbook
 from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Font
 
 from ..config import get_settings
 from ..enums import MANDAL_NAMES, MANDAL_TYPES
-from ..reports.timecalc import decimal_hours, ensure_utc, format_hm_short
-from ..sessions.service import display_status
+from ..reports.timecalc import decimal_hours, format_hm_short
 
 HEADERS = [
+    "Rank",
     "Volunteer Name",
     "Username",
     "Mandal Name",
     "Mandal Type",
-    "Seva Date",
-    "Clock-in Time",
-    "Clock-out Time",
-    "Session Duration",
-    "Duration (hours)",
-    "Duration (seconds)",
-    "Session Status",
-    "Flags",
+    "Sessions",
+    "Total Hours (h m)",
+    "Total Hours",
 ]
 
 
@@ -39,26 +33,29 @@ def _safe(value):
     return value
 
 
-def session_row(doc: dict) -> list:
-    tz = get_settings().tz
-    cin = ensure_utc(doc["clock_in"]).astimezone(tz)
-    cout = ensure_utc(doc["clock_out"]).astimezone(tz) if doc.get("clock_out") else None
-    secs = doc.get("duration_seconds")
-    v = doc["volunteer"]
-    return [
-        _safe(v["full_name"]),
-        _safe(v["username"]),
-        doc["mandal_name"],
-        doc["mandal_type"],
-        cin.strftime("%Y-%m-%d"),
-        cin.strftime("%Y-%m-%d %I:%M %p"),
-        cout.strftime("%Y-%m-%d %I:%M %p") if cout else "",
-        format_hm_short(secs) if secs is not None else "",
-        float(decimal_hours(secs)) if secs is not None else "",
-        secs if secs is not None else "",
-        display_status(doc).capitalize(),
-        ", ".join(doc.get("flags", [])),
-    ]
+def volunteer_rows(totals: dict, users: dict) -> list[list]:
+    """One row per volunteer with their total hours, most hours first (ties by name).
+
+    `totals` maps user_id to {"seconds", "sessions"}; `users` maps user_id to the user document.
+    """
+    def name(uid) -> str:
+        return users.get(uid, {}).get("full_name", "Unknown")
+
+    ranked = sorted(totals.items(), key=lambda kv: (-kv[1]["seconds"], name(kv[0]).lower()))
+    rows = []
+    for rank, (uid, t) in enumerate(ranked, start=1):
+        u = users.get(uid, {})
+        rows.append([
+            rank,
+            _safe(name(uid)),
+            _safe(u.get("username", "")),
+            u.get("mandal_name", ""),
+            u.get("mandal_type", ""),
+            t["sessions"],
+            format_hm_short(t["seconds"]),
+            float(decimal_hours(t["seconds"])),
+        ])
+    return rows
 
 
 def summary_rows(label: str, total: dict, by_mandal: dict, by_type: dict, generated_at: datetime) -> list[list]:
@@ -81,7 +78,7 @@ def summary_rows(label: str, total: dict, by_mandal: dict, by_type: dict, genera
     rows: list[list] = [
         ["Report", label],
         ["Generated", generated_at.astimezone(get_settings().tz).strftime("%Y-%m-%d %I:%M %p %Z")],
-        ["Hours are clipped to the selected date range. Active sessions are excluded unless the Active filter is set."],
+        ["Each volunteer appears once with their total hours. Sessions still in progress are excluded unless the Active filter is set."],
         [],
         ["Total", "Sessions", "Hours (h m)", "Hours"],
         line("All sessions", total),
@@ -101,19 +98,19 @@ def _csv_line(row: list) -> str:
     return buf.getvalue()
 
 
-async def stream_csv(rows: AsyncIterator[dict], summary: list[list]) -> AsyncIterator[str]:
+def stream_csv(rows: list[list], summary: list[list]) -> Iterator[str]:
     yield "﻿"  # BOM so Excel opens UTF-8 correctly
     yield _csv_line(HEADERS)
-    async for doc in rows:
-        yield _csv_line(session_row(doc))
+    for row in rows:
+        yield _csv_line(row)
     yield "\r\n"
     for r in summary:
         yield _csv_line(r)
 
 
-async def build_xlsx(rows: AsyncIterator[dict], summary: list[list]) -> tempfile.SpooledTemporaryFile:
+def build_xlsx(rows: list[list], summary: list[list]) -> tempfile.SpooledTemporaryFile:
     wb = Workbook(write_only=True)
-    ws = wb.create_sheet("Sessions")
+    ws = wb.create_sheet("Volunteers")
     bold = Font(bold=True)
     def header(cells: list) -> list:
         out = []
@@ -124,8 +121,8 @@ async def build_xlsx(rows: AsyncIterator[dict], summary: list[list]) -> tempfile
         return out
 
     ws.append(header(HEADERS))
-    async for doc in rows:
-        ws.append(session_row(doc))
+    for row in rows:
+        ws.append(row)
 
     ss = wb.create_sheet("Summary")
     for r in summary:
@@ -143,8 +140,3 @@ def iter_file(f, chunk: int = 64 * 1024) -> Iterator[bytes]:
             yield data
     finally:
         f.close()
-
-
-async def iter_report_rows(db: AsyncIOMotorDatabase, pipeline: list[dict]) -> AsyncIterator[dict]:
-    async for doc in db.seva_sessions.aggregate(pipeline):
-        yield doc
