@@ -108,7 +108,7 @@ OVERALL = "All categories"
 
 @router.get("/top-volunteers")
 async def top_volunteers(
-    limit: int = Query(3, ge=1, le=50, description="Volunteers to list per Mandal Type."),
+    limit: int = Query(3, ge=1, le=500, description="Volunteers to list per Mandal Type (500 lists everyone)."),
     mandal_type: MandalType | None = None,
     overall: bool = Query(False, description="One ranking across all Mandal Types instead of one per type."),
     db: AsyncIOMotorDatabase = Depends(db_dep),

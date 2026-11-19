@@ -34,9 +34,9 @@ export function TopVolunteerList({ items, label }: { items: RankedVolunteer[]; l
   );
 }
 
-/** "Top 3 / 5 / 10" style picker. */
+/** "Top 3 / 5 / 10 / All" style picker; the id 'all' shows as "All". */
 export function TopCountPicker<T extends string>({ options, value, onChange, label }: { options: readonly T[]; value: T; onChange: (v: T) => void; label: string }) {
-  const opts: Option<T>[] = options.map((n) => ({ id: n, label: `Top ${n}` }));
+  const opts: Option<T>[] = options.map((n) => ({ id: n, label: n === 'all' ? 'All' : `Top ${n}` }));
   return (
     <div className="top-count">
       <Segmented label={label} options={opts} value={value} onChange={onChange} />

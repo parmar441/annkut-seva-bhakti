@@ -1079,7 +1079,7 @@ a.list-row:hover {
   }
   .top-count {
     flex: none;
-    width: 260px;
+    width: 320px;
   }
   .top-types {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

@@ -100,7 +100,9 @@ export default function Overview() {
   );
 }
 
-const TOP_COUNTS = ['3', '5', '10'] as const;
+const TOP_COUNTS = ['3', '5', '10', 'all'] as const;
+/** Upper bound the server accepts; large enough to list every volunteer. */
+const ALL_LIMIT = 500;
 type TopCount = (typeof TOP_COUNTS)[number];
 // 'all' = one list per type; 'overall' = one ranking across every type.
 const TYPE_OPTIONS: Option<string>[] = [
@@ -114,20 +116,14 @@ function TopVolunteersCard() {
   const [type, setType] = useState<string>(() => readChoice('overview.topType', TYPE_OPTIONS.map((o) => o.id), 'all'));
   const overall = type === 'overall';
   const top = useTopVolunteers({
-    limit: Number(count),
+    limit: count === 'all' ? ALL_LIMIT : Number(count),
     overall: overall || undefined,
     mandal_type: type === 'all' || overall ? undefined : type,
   });
-  const reportLink = `/admin/reports${type === 'all' || overall ? '' : `?mandal_type=${encodeURIComponent(type)}`}`;
 
   return (
     <section aria-label="Top volunteers" className="card pad-lg stack">
-      <div className="section-head">
-        <h2 className="section-title sm">Top volunteers</h2>
-        <Link to={reportLink} className="link-sm">
-          Full ranking
-        </Link>
-      </div>
+      <h2 className="section-title sm">Top volunteers</h2>
       <div className="top-controls">
         <TopCountPicker
           label="How many volunteers to show"

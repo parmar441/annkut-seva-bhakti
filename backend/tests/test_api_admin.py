@@ -107,6 +107,9 @@ async def test_top_volunteers_ranked_capped_and_filtered(admin_client, make_user
         ("k1", "Kishori"), ("v2", "Yuvti"), ("v4", "Yuvti"),
     ]
     assert (await admin_client.get("/api/admin/top-volunteers", params={"limit": 0})).status_code == 422
+    assert (await admin_client.get("/api/admin/top-volunteers", params={"limit": 501})).status_code == 422
+    everyone = (await admin_client.get("/api/admin/top-volunteers", params={"overall": True, "limit": 500})).json()
+    assert len(everyone["items"][0]["volunteers"]) == 5  # the "All" option lists every volunteer with hours
     assert (await admin_client.get("/api/admin/top-volunteers", params={"mandal_type": "Nope"})).status_code == 422
     r = (await admin_client.get("/api/admin/totals", params={"group_by": "volunteer", "mandal_type": "Yuvti", "limit": 2})).json()
     assert [i["username"] for i in r["items"]] == ["v2", "v4"]
