@@ -66,6 +66,18 @@ def summary_rows(label: str, total: dict, by_mandal: dict, by_type: dict, genera
         return [name, t["sessions"], format_hm_short(t["seconds"]), float(decimal_hours(t["seconds"]))]
 
     empty = {"seconds": 0, "sessions": 0}
+
+    def ranked(names, totals: dict) -> list[list]:
+        # Most hours first; stable, so ties keep the standard order. Rank and share columns follow the hours.
+        order = sorted(names, key=lambda n: -totals.get(n, empty)["seconds"])
+        group_total = sum(totals.get(n, empty)["seconds"] for n in names)
+        rows = []
+        for rank, n in enumerate(order, start=1):
+            t = totals.get(n, empty)
+            share = round(100 * t["seconds"] / group_total, 1) if group_total else 0.0
+            rows.append([*line(n, t), rank, share])
+        return rows
+
     rows: list[list] = [
         ["Report", label],
         ["Generated", generated_at.astimezone(get_settings().tz).strftime("%Y-%m-%d %I:%M %p %Z")],
@@ -74,11 +86,11 @@ def summary_rows(label: str, total: dict, by_mandal: dict, by_type: dict, genera
         ["Total", "Sessions", "Hours (h m)", "Hours"],
         line("All sessions", total),
         [],
-        ["Mandal Name", "Sessions", "Hours (h m)", "Hours"],
-        *[line(m, by_mandal.get(m, empty)) for m in MANDAL_NAMES],
+        ["Mandal Name", "Sessions", "Hours (h m)", "Hours", "Rank", "% of total"],
+        *ranked(MANDAL_NAMES, by_mandal),
         [],
-        ["Mandal Type", "Sessions", "Hours (h m)", "Hours"],
-        *[line(t, by_type.get(t, empty)) for t in MANDAL_TYPES],
+        ["Mandal Type", "Sessions", "Hours (h m)", "Hours", "Rank", "% of total"],
+        *ranked(MANDAL_TYPES, by_type),
     ]
     return rows
 

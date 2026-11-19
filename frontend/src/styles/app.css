@@ -967,6 +967,16 @@ a.list-row:hover {
   justify-content: space-between;
   font-size: 13px;
 }
+.hours-bar .rank {
+  display: inline-block;
+  min-width: 1.5em;
+  color: var(--muted);
+  font-weight: 700;
+}
+.hours-bar .share {
+  color: var(--muted);
+  font-weight: 600;
+}
 .hours-bar .track {
   height: 8px;
   border-radius: 4px;

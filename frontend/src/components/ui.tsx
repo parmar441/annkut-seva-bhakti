@@ -120,14 +120,36 @@ export function Switch({ checked, onChange, label, disabled }: { checked: boolea
   );
 }
 
-export function HoursBar({ name, value, fraction }: { name: string; value: string; fraction: number }) {
+export function HoursBar({
+  name,
+  value,
+  fraction,
+  rank,
+  share,
+}: {
+  name: string;
+  value: string;
+  fraction: number;
+  /** 1-based position when the bars are ranked by hours. */
+  rank?: number;
+  /** This item's share of the group total, 0–1. Hidden when there are no hours. */
+  share?: number;
+}) {
   const pct = Math.max(0, Math.min(100, Math.round(fraction * 100)));
   return (
     <div className="hours-bar">
       <div className="top">
-        <span style={{ fontWeight: 600 }}>{name}</span>
+        <span style={{ fontWeight: 600 }}>
+          {rank !== undefined && (
+            <span className="rank tabular" aria-label={`Rank ${rank}`}>
+              {rank}
+            </span>
+          )}
+          {name}
+        </span>
         <span className="tabular" style={{ fontWeight: 700 }}>
           {value}
+          {share !== undefined && share > 0 && <span className="share"> · {Math.round(share * 100)}%</span>}
         </span>
       </div>
       <div className="track" role="presentation">

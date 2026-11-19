@@ -110,6 +110,13 @@ async def test_totals_by_group(admin_client, make_user, make_client, clock):
     r = (await admin_client.get("/api/admin/totals", params={"group_by": "mandal_type", "preset": "month"})).json()
     by = {i["key"]: i["seconds"] for i in r["items"]}
     assert by == {"Kishori": 20700, "Yuvti": 27900, "Sahid": 0, "Sahradayi": 0}
+    secs = [i["seconds"] for i in r["items"]]
+    assert secs == sorted(secs, reverse=True)  # ranked by hours, most first
+    assert [i["key"] for i in r["items"]][:2] == ["Yuvti", "Kishori"]
+    stats = (await admin_client.get("/api/admin/stats")).json()
+    for group in ("by_type", "by_mandal"):
+        s = [i["seconds"] for i in stats[group]]
+        assert s == sorted(s, reverse=True)
     r = (await admin_client.get("/api/admin/totals", params={"group_by": "volunteer"})).json()
     assert r["items"][0]["label"] == "Anjali Patel"
     r = (await admin_client.get("/api/admin/totals", params={"group_by": "day", "from": "2026-10-18", "to": "2026-10-19"})).json()
@@ -130,6 +137,12 @@ async def test_export_csv_full_set_with_summary(admin_client, make_user, make_cl
     flat = [",".join(r) for r in rows]
     assert any(line.startswith("Edison,") for line in flat)
     assert any(line.startswith("Kishori,") for line in flat)
+    # Mandal Type summary is ranked by hours with rank and share columns (Yuvti 27900s, Kishori 20700s).
+    start = next(i for i, row in enumerate(rows) if row[:1] == ["Mandal Type"])
+    assert rows[start] == ["Mandal Type", "Sessions", "Hours (h m)", "Hours", "Rank", "% of total"]
+    types = rows[start + 1 : start + 5]
+    assert [(t[0], t[4], t[5]) for t in types[:2]] == [("Yuvti", "1", "57.4"), ("Kishori", "2", "42.6")]
+    assert [t[5] for t in types[2:]] == ["0.0", "0.0"]
 
 
 async def test_export_xlsx(admin_client, make_user, make_client, clock):

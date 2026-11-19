@@ -12,6 +12,9 @@ export default function Overview() {
   const s = stats.data;
   const month = s?.month.from ? monthName(s.month.from) : 'This month';
   const maxMandal = Math.max(1, ...(s?.by_mandal.map((m) => m.seconds) ?? [1]));
+  const maxType = Math.max(1, ...(s?.by_type.map((t) => t.seconds) ?? [1]));
+  const totalMandal = s?.by_mandal.reduce((n, m) => n + m.seconds, 0) ?? 0;
+  const totalType = s?.by_type.reduce((n, t) => n + t.seconds, 0) ?? 0;
   const review = s?.needs_review;
   const reviewParts = review
     ? [
@@ -61,23 +64,31 @@ export default function Overview() {
           <div className="split-desktop stack" style={{ gap: 18 }}>
             <section aria-label={`Hours by Mandal, ${month}`} className="card pad-lg stack">
               <h2 className="section-title sm">Hours by Mandal · {month}</h2>
-              {[...s!.by_mandal]
-                .sort((a, b) => b.seconds - a.seconds)
-                .map((m) => (
-                  <HoursBar key={m.name} name={m.name} value={m.decimal_text} fraction={m.seconds / maxMandal} />
-                ))}
+              {/* The server ranks categories by hours, most first. */}
+              {s!.by_mandal.map((m, i) => (
+                <HoursBar
+                  key={m.name}
+                  rank={i + 1}
+                  name={m.name}
+                  value={m.decimal_text}
+                  fraction={m.seconds / maxMandal}
+                  share={totalMandal ? m.seconds / totalMandal : 0}
+                />
+              ))}
             </section>
 
             <section aria-label={`Hours by Mandal type, ${month}`} className="card pad-lg stack">
               <h2 className="section-title sm">Hours by Mandal Type · {month}</h2>
-              <div className="grid-2">
-                {s!.by_type.map((t) => (
-                  <div key={t.name} className="mini-stat">
-                    <p className="label">{t.name}</p>
-                    <p className="value">{t.decimal_text}</p>
-                  </div>
-                ))}
-              </div>
+              {s!.by_type.map((t, i) => (
+                <HoursBar
+                  key={t.name}
+                  rank={i + 1}
+                  name={t.name}
+                  value={t.decimal_text}
+                  fraction={t.seconds / maxType}
+                  share={totalType ? t.seconds / totalType : 0}
+                />
+              ))}
             </section>
           </div>
         </>

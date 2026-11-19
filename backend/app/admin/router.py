@@ -90,8 +90,15 @@ async def stats(db: AsyncIOMotorDatabase = Depends(db_dep)):
         "on_seva_now": on_seva_now,
         "needs_review": {"total": review_total, "by_flag": review_by_flag},
         "password_reset_requests": await db.password_resets.count_documents({"active": True, "status": "requested"}),
-        "by_mandal": [{"name": m.value, **duration_view(by_mandal.get(m.value, empty)["seconds"])} for m in MandalName],
-        "by_type": [{"name": t.value, **duration_view(by_type.get(t.value, empty)["seconds"])} for t in MandalType],
+        # Categories are ranked by hours, most first; ties keep the standard order.
+        "by_mandal": sorted(
+            ({"name": m.value, **duration_view(by_mandal.get(m.value, empty)["seconds"])} for m in MandalName),
+            key=lambda x: -x["seconds"],
+        ),
+        "by_type": sorted(
+            ({"name": t.value, **duration_view(by_type.get(t.value, empty)["seconds"])} for t in MandalType),
+            key=lambda x: -x["seconds"],
+        ),
     }
 
 
@@ -306,6 +313,7 @@ async def totals(
         empty = {"seconds": 0, "sessions": 0}
         items = [{"key": n, "label": n, "sessions": grouped.get(n, empty)["sessions"],
                   **duration_view(grouped.get(n, empty)["seconds"])} for n in names]
+        items.sort(key=lambda x: -x["seconds"])  # most hours first; stable, so ties keep the standard order
     return {"group_by": group_by, "range": info, "label": describe(filters, info), "items": items}
 
 
