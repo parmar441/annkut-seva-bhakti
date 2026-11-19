@@ -60,7 +60,7 @@ export function formatRange(from: string | null | undefined, to: string | null |
   if (from && to) return from === to ? formatCalendarDate(from, false) : `${formatCalendarDate(from, false)} – ${formatCalendarDate(to, false)}`;
   if (from) return `Since ${formatCalendarDate(from, false)}`;
   if (to) return `Until ${formatCalendarDate(to, false)}`;
-  return 'All time';
+  return '';
 }
 
 export function monDay(d: string): { mon: string; day: string } {

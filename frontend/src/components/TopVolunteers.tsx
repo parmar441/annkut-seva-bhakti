@@ -6,6 +6,8 @@ export interface RankedVolunteer {
   name: string;
   hours: string;
   sessions?: number;
+  /** Extra context shown before the session count, e.g. the volunteer's Mandal Type. */
+  detail?: string;
 }
 
 /** Numbered list of volunteers, most hours first. Rows are full-width tap targets on phones. */
@@ -19,9 +21,9 @@ export function TopVolunteerList({ items, label }: { items: RankedVolunteer[]; l
           </span>
           <span className="who">
             <Link to={`/admin/volunteers/${v.id}`}>{v.name}</Link>
-            {v.sessions !== undefined && (
+            {(v.detail || v.sessions !== undefined) && (
               <span className="meta">
-                {v.sessions} session{v.sessions === 1 ? '' : 's'}
+                {[v.detail, v.sessions !== undefined && `${v.sessions} session${v.sessions === 1 ? '' : 's'}`].filter(Boolean).join(' · ')}
               </span>
             )}
           </span>

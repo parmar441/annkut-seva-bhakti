@@ -103,18 +103,28 @@ async def stats(db: AsyncIOMotorDatabase = Depends(db_dep)):
     }
 
 
+OVERALL = "All categories"
+
+
 @router.get("/top-volunteers")
 async def top_volunteers(
     limit: int = Query(3, ge=1, le=50, description="Volunteers to list per Mandal Type."),
     mandal_type: MandalType | None = None,
+    overall: bool = Query(False, description="One ranking across all Mandal Types instead of one per type."),
     db: AsyncIOMotorDatabase = Depends(db_dep),
 ):
-    """All-time top volunteers per Mandal Type from completed sessions (matching total_hours).
+    """All-time top volunteers from completed sessions (matching total_hours).
 
-    Types are ranked by their total hours, most first; ties keep the standard order.
+    By default there is one list per Mandal Type, types ranked by their total hours, most first (ties keep the
+    standard order). With `overall`, a single list named "All categories" ranks volunteers across every type.
     """
     now = utcnow()
     match: dict = {"status": SessionStatus.COMPLETED.value}
+    if overall:
+        grouped = await grouped_totals(db, match, None, None, now, False, lambda d: (OVERALL, d["user_id"]))
+        top = await top_volunteers_by_type(db, grouped, limit)
+        total = sum(v["seconds"] for v in grouped.values())
+        return {"limit": limit, "items": [{"name": OVERALL, **duration_view(total), "volunteers": top.get(OVERALL, [])}]}
     if mandal_type is not None:
         match["mandal_type"] = mandal_type.value
     grouped = await grouped_totals(db, match, None, None, now, False, lambda d: (d["mandal_type"], d["user_id"]))
@@ -131,7 +141,8 @@ async def top_volunteers(
 
 
 async def volunteer_names(db: AsyncIOMotorDatabase, ids) -> dict:
-    return {u["_id"]: u async for u in db.users.find({"_id": {"$in": list(ids)}}, {"full_name": 1, "username": 1})}
+    projection = {"full_name": 1, "username": 1, "mandal_name": 1, "mandal_type": 1}
+    return {u["_id"]: u async for u in db.users.find({"_id": {"$in": list(ids)}}, projection)}
 
 
 async def top_volunteers_by_type(db: AsyncIOMotorDatabase, grouped: dict, limit: int) -> dict[str, list[dict]]:
@@ -145,7 +156,8 @@ async def top_volunteers_by_type(db: AsyncIOMotorDatabase, grouped: dict, limit:
     return {
         t: [
             {"id": str(uid), "full_name": users[uid]["full_name"] if uid in users else "Unknown",
-             "username": users.get(uid, {}).get("username"), "sessions": v["sessions"], **duration_view(v["seconds"])}
+             "username": users.get(uid, {}).get("username"), "mandal_type": users.get(uid, {}).get("mandal_type"),
+             "sessions": v["sessions"], **duration_view(v["seconds"])}
             for uid, v in rows
         ]
         for t, rows in top.items()

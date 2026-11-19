@@ -9,7 +9,7 @@ import { formatCalendarDate, formatRange, formatTime } from '../../lib/format';
 
 type Preset = 'all' | 'today' | 'week' | 'custom';
 const PRESETS: Option<Preset>[] = [
-  { id: 'all', label: 'All time' },
+  { id: 'all', label: 'All' },
   { id: 'today', label: 'Today' },
   { id: 'week', label: 'This week' },
   { id: 'custom', label: 'Custom' },
@@ -74,7 +74,9 @@ export default function History() {
       <section aria-label="Range total" className="range-total" aria-live="polite">
         <div className="stack-sm" style={{ gap: 2 }}>
           <p className="kicker">
-            {formatRange(data?.range.from, data?.range.to)} · {data ? `${data.summary.sessions} session${data.summary.sessions === 1 ? '' : 's'}` : '…'}
+            {[formatRange(data?.range.from, data?.range.to), data ? `${data.summary.sessions} session${data.summary.sessions === 1 ? '' : 's'}` : '…']
+              .filter(Boolean)
+              .join(' · ')}
           </p>
           <p className="big">{data ? data.summary.duration.long : '—'}</p>
         </div>

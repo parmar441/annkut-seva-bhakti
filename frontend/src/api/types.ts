@@ -153,6 +153,7 @@ export interface TopVolunteer extends Duration {
   id: string;
   full_name: string;
   username: string | null;
+  mandal_type: string | null;
   sessions: number;
 }
 
@@ -173,7 +174,7 @@ export interface AdminStats {
   by_type: NamedHours[];
 }
 
-/** All time, completed sessions: types ranked by hours, each with its top volunteers, most hours first. */
+/** Completed sessions, no date limit: types ranked by hours (or one "All categories" list), volunteers most hours first. */
 export interface TopVolunteersResponse {
   limit: number;
   items: (Duration & { name: string; volunteers: TopVolunteer[] })[];

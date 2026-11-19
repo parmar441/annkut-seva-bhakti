@@ -94,6 +94,18 @@ async def test_top_volunteers_ranked_capped_and_filtered(admin_client, make_user
     r = (await admin_client.get("/api/admin/top-volunteers", params={"limit": 10, "mandal_type": "Yuvti"})).json()
     assert [t["name"] for t in r["items"]] == ["Yuvti"]
     assert [v["username"] for v in r["items"][0]["volunteers"]] == ["v2", "v4", "v3", "v1"]
+    # Overall: one list across every type, each volunteer tagged with their type.
+    for name, h in {"k1": 5}.items():
+        await make_user(name, full_name=name.upper(), mandal_name="Edison", mandal_type="Kishori")
+        async with make_client() as c:
+            await c.login(name)
+            await c.post("/api/me/sessions", json={"clock_in": "2026-10-21T08:00", "clock_out": f"2026-10-21T{8 + h:02d}:00"})
+    r = (await admin_client.get("/api/admin/top-volunteers", params={"overall": True, "limit": 3})).json()
+    assert len(r["items"]) == 1 and r["items"][0]["name"] == "All categories"
+    assert r["items"][0]["seconds"] == 54000
+    assert [(v["username"], v["mandal_type"]) for v in r["items"][0]["volunteers"]] == [
+        ("k1", "Kishori"), ("v2", "Yuvti"), ("v4", "Yuvti"),
+    ]
     assert (await admin_client.get("/api/admin/top-volunteers", params={"limit": 0})).status_code == 422
     assert (await admin_client.get("/api/admin/top-volunteers", params={"mandal_type": "Nope"})).status_code == 422
     r = (await admin_client.get("/api/admin/totals", params={"group_by": "volunteer", "mandal_type": "Yuvti", "limit": 2})).json()

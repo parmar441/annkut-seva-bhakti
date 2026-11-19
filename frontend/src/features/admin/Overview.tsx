@@ -41,8 +41,8 @@ export default function Overview() {
         <>
           <section aria-label="Summary" className="grid-2 cards-desktop-grid">
             <StatCard large label="Registered volunteers" value={formatNumber(s!.total_volunteers)} sub={`${formatNumber(s!.active_accounts)} active accounts`} />
-            <StatCard large label="Completed sessions" value={formatNumber(s!.completed_sessions)} sub="All time" />
-            <StatCard large label="Total seva hours" value={s!.total_hours.decimal_text} sub={`${s!.total_hours.hm} · all time`} />
+            <StatCard large label="Completed sessions" value={formatNumber(s!.completed_sessions)} sub="Clocked in and out" />
+            <StatCard large label="Total seva hours" value={s!.total_hours.decimal_text} sub={s!.total_hours.hm} />
             <StatCard large label="Hours today" value={s!.hours_today.decimal_text} sub={`${s!.volunteers_today} volunteer${s!.volunteers_today === 1 ? '' : 's'}`} />
             <StatCard large label="On seva now" value={formatNumber(s!.on_seva_now)} sub="Active sessions" />
           </section>
@@ -63,8 +63,8 @@ export default function Overview() {
           )}
 
           <div className="split-desktop stack" style={{ gap: 18 }}>
-            <section aria-label="Hours by Mandal, all time" className="card pad-lg stack">
-              <h2 className="section-title sm">Hours by Mandal · All time</h2>
+            <section aria-label="Hours by Mandal" className="card pad-lg stack">
+              <h2 className="section-title sm">Hours by Mandal</h2>
               {/* The server ranks categories by hours, most first. */}
               {s!.by_mandal.map((m, i) => (
                 <HoursBar
@@ -78,8 +78,8 @@ export default function Overview() {
               ))}
             </section>
 
-            <section aria-label="Hours by Mandal type, all time" className="card pad-lg stack">
-              <h2 className="section-title sm">Hours by Mandal Type · All time</h2>
+            <section aria-label="Hours by Mandal type" className="card pad-lg stack">
+              <h2 className="section-title sm">Hours by Mandal Type</h2>
               {s!.by_type.map((t, i) => (
                 <HoursBar
                   key={t.name}
@@ -102,18 +102,28 @@ export default function Overview() {
 
 const TOP_COUNTS = ['3', '5', '10'] as const;
 type TopCount = (typeof TOP_COUNTS)[number];
-const TYPE_OPTIONS: Option<string>[] = [{ id: 'all', label: 'All types' }, ...MANDAL_TYPES.map((t) => ({ id: t, label: t }))];
+// 'all' = one list per type; 'overall' = one ranking across every type.
+const TYPE_OPTIONS: Option<string>[] = [
+  { id: 'all', label: 'By type' },
+  { id: 'overall', label: 'All categories' },
+  ...MANDAL_TYPES.map((t) => ({ id: t, label: t })),
+];
 
 function TopVolunteersCard() {
   const [count, setCount] = useState<TopCount>(() => readChoice('overview.topCount', TOP_COUNTS, '3'));
   const [type, setType] = useState<string>(() => readChoice('overview.topType', TYPE_OPTIONS.map((o) => o.id), 'all'));
-  const top = useTopVolunteers({ limit: Number(count), mandal_type: type === 'all' ? undefined : type });
-  const reportLink = `/admin/reports${type === 'all' ? '' : `?mandal_type=${encodeURIComponent(type)}`}`;
+  const overall = type === 'overall';
+  const top = useTopVolunteers({
+    limit: Number(count),
+    overall: overall || undefined,
+    mandal_type: type === 'all' || overall ? undefined : type,
+  });
+  const reportLink = `/admin/reports${type === 'all' || overall ? '' : `?mandal_type=${encodeURIComponent(type)}`}`;
 
   return (
-    <section aria-label="Top volunteers by Mandal type, all time" className="card pad-lg stack">
+    <section aria-label="Top volunteers" className="card pad-lg stack">
       <div className="section-head">
-        <h2 className="section-title sm">Top volunteers by Mandal Type · All time</h2>
+        <h2 className="section-title sm">Top volunteers</h2>
         <Link to={reportLink} className="link-sm">
           Full ranking
         </Link>
@@ -155,7 +165,13 @@ function TopVolunteersCard() {
               {t.volunteers.length ? (
                 <TopVolunteerList
                   label={`Top volunteers, ${t.name}`}
-                  items={t.volunteers.map((v) => ({ id: v.id, name: v.full_name, hours: v.decimal_text, sessions: v.sessions }))}
+                  items={t.volunteers.map((v) => ({
+                    id: v.id,
+                    name: v.full_name,
+                    hours: v.decimal_text,
+                    sessions: v.sessions,
+                    detail: overall ? (v.mandal_type ?? undefined) : undefined,
+                  }))}
                 />
               ) : (
                 <p className="note">No seva hours yet.</p>

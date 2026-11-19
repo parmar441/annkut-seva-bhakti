@@ -107,7 +107,7 @@ def report_pipeline(match: dict, sort: str, order: str, skip: int | None = None,
 
 
 def describe(f: ReportFilters, info: dict) -> str:
-    """'This month · All Mandals · All Types' style label for headers and exports."""
+    """'This month · All Mandals · All Types' style label for headers and exports; no date part when unranged."""
     labels = {"today": "Today", "week": "This week", "month": "This month"}
     if info.get("preset") in labels:
         when = labels[info["preset"]]
@@ -118,9 +118,9 @@ def describe(f: ReportFilters, info: dict) -> str:
     elif info.get("to"):
         when = f"Until {info['to']}"
     else:
-        when = "All time"
+        when = None
     parts = [
-        when,
+        *([when] if when else []),
         f.mandal_name.value if f.mandal_name else "All Mandals",
         f.mandal_type.value if f.mandal_type else "All Types",
     ]
