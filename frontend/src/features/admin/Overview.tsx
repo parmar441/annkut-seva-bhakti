@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom';
 import { ChevronRight, Flag } from 'lucide-react';
-import { useAdminStats } from '../../api/hooks';
+import { useState } from 'react';
+import { useAdminStats, useTopVolunteers } from '../../api/hooks';
 import { errorMessage } from '../../api/client';
 import { AdminHeader } from '../../components/Shells';
-import { ErrorState, HoursBar, Skeleton, StatCard } from '../../components/ui';
+import { ChipGroup, ErrorState, HoursBar, Skeleton, StatCard, type Option } from '../../components/ui';
+import { TopCountPicker, TopVolunteerList, readChoice, saveChoice } from '../../components/TopVolunteers';
+import { MANDAL_TYPES } from '../../lib/enums';
 import { formatDay, formatNumber } from '../../lib/format';
 import { SecurityQuestionPrompt } from '../../components/Shells';
 
@@ -90,40 +93,77 @@ export default function Overview() {
             </section>
           </div>
 
-          <section aria-label="Top volunteers by Mandal type, all time" className="card pad-lg stack">
-            <div className="row" style={{ justifyContent: 'space-between', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
-              <h2 className="section-title sm">Top volunteers by Mandal Type · All time</h2>
-              <Link to="/admin/reports?preset=all" style={{ fontSize: 13, fontWeight: 700 }}>
-                Full ranking
-              </Link>
-            </div>
-            <div className="top-types">
-              {s!.top_by_type.map((t) => (
-                <div key={t.name} className="top-type">
-                  <h3>{t.name}</h3>
-                  {t.volunteers.length ? (
-                    <ol className="top-list">
-                      {t.volunteers.map((v, i) => (
-                        <li key={v.id}>
-                          <span className="rank tabular" aria-hidden="true">
-                            {i + 1}
-                          </span>
-                          <Link to={`/admin/volunteers/${v.id}`} className="who">
-                            {v.full_name}
-                          </Link>
-                          <span className="tabular hours">{v.decimal_text}</span>
-                        </li>
-                      ))}
-                    </ol>
-                  ) : (
-                    <p className="note">No seva hours yet.</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
+          <TopVolunteersCard />
         </>
       )}
     </div>
+  );
+}
+
+const TOP_COUNTS = ['3', '5', '10'] as const;
+type TopCount = (typeof TOP_COUNTS)[number];
+const TYPE_OPTIONS: Option<string>[] = [{ id: 'all', label: 'All types' }, ...MANDAL_TYPES.map((t) => ({ id: t, label: t }))];
+
+function TopVolunteersCard() {
+  const [count, setCount] = useState<TopCount>(() => readChoice('overview.topCount', TOP_COUNTS, '3'));
+  const [type, setType] = useState<string>(() => readChoice('overview.topType', TYPE_OPTIONS.map((o) => o.id), 'all'));
+  const top = useTopVolunteers({ limit: Number(count), mandal_type: type === 'all' ? undefined : type });
+  const reportLink = `/admin/reports${type === 'all' ? '' : `?mandal_type=${encodeURIComponent(type)}`}`;
+
+  return (
+    <section aria-label="Top volunteers by Mandal type, all time" className="card pad-lg stack">
+      <div className="section-head">
+        <h2 className="section-title sm">Top volunteers by Mandal Type · All time</h2>
+        <Link to={reportLink} className="link-sm">
+          Full ranking
+        </Link>
+      </div>
+      <div className="top-controls">
+        <TopCountPicker
+          label="How many volunteers to show"
+          options={TOP_COUNTS}
+          value={count}
+          onChange={(v) => {
+            setCount(v);
+            saveChoice('overview.topCount', v);
+          }}
+        />
+        <div className="chips-scroll">
+          <ChipGroup
+            label="Mandal type"
+            options={TYPE_OPTIONS}
+            value={type}
+            onChange={(v) => {
+              setType(v);
+              saveChoice('overview.topType', v);
+            }}
+          />
+        </div>
+      </div>
+      {top.isPending ? (
+        <Skeleton count={3} height={44} />
+      ) : top.isError ? (
+        <ErrorState message={errorMessage(top.error)} onRetry={() => top.refetch()} />
+      ) : (
+        <div className={`top-types${type === 'all' ? '' : ' single'}`} aria-busy={top.isFetching || undefined}>
+          {top.data.items.map((t) => (
+            <div key={t.name} className="top-type">
+              <h3>
+                {t.name}
+                <span className="type-total tabular">{t.decimal_text}</span>
+              </h3>
+              {t.volunteers.length ? (
+                <TopVolunteerList
+                  label={`Top volunteers, ${t.name}`}
+                  items={t.volunteers.map((v) => ({ id: v.id, name: v.full_name, hours: v.decimal_text, sessions: v.sessions }))}
+                />
+              ) : (
+                <p className="note">No seva hours yet.</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

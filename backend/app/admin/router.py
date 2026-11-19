@@ -71,11 +71,6 @@ async def stats(db: AsyncIOMotorDatabase = Depends(db_dep)):
     # Category totals are all time from completed sessions, matching total_hours.
     by_mandal = await grouped_totals(db, completed, None, None, now, False, lambda d: d["mandal_name"])
     by_type = await grouped_totals(db, completed, None, None, now, False, lambda d: d["mandal_type"])
-    # Top volunteers are ranked on all-time hours from completed sessions, like total_hours.
-    by_type_volunteer = await grouped_totals(
-        db, completed, None, None, now, False, lambda d: (d["mandal_type"], d["user_id"])
-    )
-    top_by_type = await top_volunteers_by_type(db, by_type_volunteer, TOP_VOLUNTEERS_PER_TYPE)
 
     on_seva_now = await db.seva_sessions.count_documents({"status": SessionStatus.ACTIVE.value})
     review_total = await db.seva_sessions.count_documents({"needs_review": True})
@@ -105,15 +100,34 @@ async def stats(db: AsyncIOMotorDatabase = Depends(db_dep)):
             ({"name": t.value, **duration_view(by_type.get(t.value, empty)["seconds"])} for t in MandalType),
             key=lambda x: -x["seconds"],
         ),
-        # All time: types ranked by their total hours, each listing its top volunteers, most hours first.
-        "top_by_type": sorted(
-            ({"name": t.value, "volunteers": top_by_type.get(t.value, [])} for t in MandalType),
-            key=lambda x: -by_type.get(x["name"], empty)["seconds"],
-        ),
     }
 
 
-TOP_VOLUNTEERS_PER_TYPE = 3
+@router.get("/top-volunteers")
+async def top_volunteers(
+    limit: int = Query(3, ge=1, le=50, description="Volunteers to list per Mandal Type."),
+    mandal_type: MandalType | None = None,
+    db: AsyncIOMotorDatabase = Depends(db_dep),
+):
+    """All-time top volunteers per Mandal Type from completed sessions (matching total_hours).
+
+    Types are ranked by their total hours, most first; ties keep the standard order.
+    """
+    now = utcnow()
+    match: dict = {"status": SessionStatus.COMPLETED.value}
+    if mandal_type is not None:
+        match["mandal_type"] = mandal_type.value
+    grouped = await grouped_totals(db, match, None, None, now, False, lambda d: (d["mandal_type"], d["user_id"]))
+    type_seconds: dict[str, int] = {}
+    for (mtype, _), v in grouped.items():
+        type_seconds[mtype] = type_seconds.get(mtype, 0) + v["seconds"]
+    top = await top_volunteers_by_type(db, grouped, limit)
+    types = [t for t in MandalType if mandal_type is None or t == mandal_type]
+    items = sorted(
+        ({"name": t.value, **duration_view(type_seconds.get(t.value, 0)), "volunteers": top.get(t.value, [])} for t in types),
+        key=lambda x: -x["seconds"],
+    )
+    return {"limit": limit, "items": items}
 
 
 async def volunteer_names(db: AsyncIOMotorDatabase, ids) -> dict:

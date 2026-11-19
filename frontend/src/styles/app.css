@@ -161,11 +161,13 @@ textarea::placeholder {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 .link-sm {
   font-size: 13px;
   font-weight: 700;
   padding: 8px 0;
+  white-space: nowrap;
 }
 
 .card {
@@ -977,15 +979,54 @@ a.list-row:hover {
   color: var(--muted);
   font-weight: 600;
 }
+.scroll-x {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.top-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.top-count {
+  max-width: 320px;
+}
+/* Type chips stay on one line and scroll sideways on narrow screens. */
+.chips-scroll {
+  overflow-x: auto;
+  margin: 0 -4px;
+  padding: 0 4px 2px;
+  scrollbar-width: none;
+}
+.chips-scroll::-webkit-scrollbar {
+  display: none;
+}
+.chips-scroll .chips {
+  flex-wrap: nowrap;
+}
+.chips-scroll .chip {
+  flex: none;
+}
 .top-types {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+  grid-template-columns: 1fr;
+  gap: 18px;
 }
 .top-type h3 {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
   font-size: 14px;
   font-weight: 800;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--surface-muted);
+}
+.top-type .type-total {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
 }
 .top-list {
   list-style: none;
@@ -995,29 +1036,60 @@ a.list-row:hover {
 .top-list li {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 14px;
-  min-height: 36px;
+  min-height: 48px;
+  padding: 4px 0;
   border-top: 1px solid var(--surface-muted);
 }
 .top-list li:first-child {
   border-top: 0;
 }
 .top-list .rank {
-  min-width: 1.5em;
+  min-width: 1.6em;
   color: var(--muted);
   font-weight: 700;
 }
 .top-list .who {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.top-list .who a {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 600;
+  padding: 4px 0;
+}
+.top-list .who .meta {
+  font-size: 12px;
+  color: var(--muted);
 }
 .top-list .hours {
   font-weight: 700;
+  white-space: nowrap;
+}
+@media (min-width: 768px) {
+  .top-controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .top-count {
+    flex: none;
+    width: 260px;
+  }
+  .top-types {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .top-types.single {
+    grid-template-columns: minmax(0, 560px);
+  }
+  .top-list li {
+    min-height: 44px;
+  }
 }
 .hours-bar .track {
   height: 8px;

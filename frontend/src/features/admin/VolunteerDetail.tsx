@@ -122,7 +122,7 @@ export default function VolunteerDetail() {
             <Pagination page={sessions.data.page} pages={sessions.data.pages} total={sessions.data.total} pageSize={sessions.data.page_size} onPage={setPage} />
           </>
         )}
-        <Link to={`/admin/reports?q=${encodeURIComponent(user.username)}&preset=custom`} className="btn btn-secondary btn-sm">
+        <Link to={`/admin/reports?q=${encodeURIComponent(user.username)}`} className="btn btn-secondary btn-sm">
           Open in reports
         </Link>
       </section>

@@ -171,8 +171,12 @@ export interface AdminStats {
   password_reset_requests: number;
   by_mandal: NamedHours[];
   by_type: NamedHours[];
-  /** All time, completed sessions: types ranked by hours, each with its top volunteers, most hours first. */
-  top_by_type: { name: string; volunteers: TopVolunteer[] }[];
+}
+
+/** All time, completed sessions: types ranked by hours, each with its top volunteers, most hours first. */
+export interface TopVolunteersResponse {
+  limit: number;
+  items: (Duration & { name: string; volunteers: TopVolunteer[] })[];
 }
 
 export interface AdminUser extends User {

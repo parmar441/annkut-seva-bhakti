@@ -7,18 +7,11 @@ import { useToast } from '../../components/Toast';
 import type { AdminSession } from '../../api/types';
 import { AdminHeader } from '../../components/Shells';
 import { SelectField, TextField } from '../../components/Field';
-import { ChipGroup, EmptyState, ErrorState, Pagination, Segmented, Skeleton, StatusPill, type Option } from '../../components/ui';
+import { EmptyState, ErrorState, Pagination, Segmented, Skeleton, StatusPill, type Option } from '../../components/ui';
 import { MANDAL_NAMES, MANDAL_TYPES } from '../../lib/enums';
+import { TopCountPicker, TopVolunteerList, readChoice, saveChoice } from '../../components/TopVolunteers';
 import { formatCalendarDate, formatTimeCompact, formatTime } from '../../lib/format';
 
-type Preset = 'all' | 'today' | 'week' | 'date' | 'custom';
-const PRESETS: Option<Preset>[] = [
-  { id: 'all', label: 'All time' },
-  { id: 'today', label: 'Today' },
-  { id: 'week', label: 'This week' },
-  { id: 'date', label: 'Specific date' },
-  { id: 'custom', label: 'Custom' },
-];
 type Status = 'all' | 'active' | 'completed' | 'flagged';
 const STATUSES: Option<Status>[] = [
   { id: 'all', label: 'All' },
@@ -26,7 +19,8 @@ const STATUSES: Option<Status>[] = [
   { id: 'completed', label: 'Done' },
   { id: 'flagged', label: 'Flagged' },
 ];
-const TOP_VOLUNTEERS = 10;
+const TOP_COUNTS = ['10', '25', '50'] as const;
+type TopCount = (typeof TOP_COUNTS)[number];
 
 const SORTS = [
   { id: 'date', label: 'Seva date' },
@@ -84,7 +78,6 @@ function ReportCard({ r }: { r: AdminSession }) {
 export default function Reports() {
   const [params, setParams] = useSearchParams();
   const get = (k: string, d = '') => params.get(k) ?? d;
-  const preset = get('preset', 'all') as Preset;
   const status = get('status', 'all') as Status;
   const sort = get('sort', 'date');
   const order = get('order', 'desc') as 'asc' | 'desc';
@@ -108,11 +101,7 @@ export default function Reports() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q]);
 
-  const from = get('from');
-  const to = get('to');
-  const date = get('date');
-  const invalidRange = preset === 'custom' && !!from && !!to && from > to;
-
+  // Reports always cover all time; there is no date filter.
   const filters = useMemo(() => {
     const f: Record<string, string | undefined> = {
       mandal_name: get('mandal_name') || undefined,
@@ -120,13 +109,6 @@ export default function Reports() {
       q: get('q') || undefined,
       status,
     };
-    if (preset === 'date') f.date = date || undefined;
-    else if (preset === 'custom') {
-      if (!invalidRange) {
-        f.from = from || undefined;
-        f.to = to || undefined;
-      }
-    } else f.preset = preset;
     return f;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
@@ -134,7 +116,8 @@ export default function Reports() {
   const report = useAdminReport({ ...filters, sort, order, page, page_size: pageSize });
   const byMandal = useAdminTotals({ ...filters, group_by: 'mandal_name' });
   const byType = useAdminTotals({ ...filters, group_by: 'mandal_type' });
-  const topVolunteers = useAdminTotals({ ...filters, group_by: 'volunteer', limit: TOP_VOLUNTEERS });
+  const [topCount, setTopCount] = useState<TopCount>(() => readChoice('reports.topCount', TOP_COUNTS, '10'));
+  const topVolunteers = useAdminTotals({ ...filters, group_by: 'volunteer', limit: Number(topCount) });
   const data = report.data;
 
   const toast = useToast();
@@ -159,29 +142,7 @@ export default function Reports() {
       <AdminHeader title="Reports" />
 
       <section aria-label="Filters" className="card pad-lg stack" style={{ borderRadius: 18, gap: 14 }}>
-        <ChipGroup label="Date preset" options={PRESETS} value={preset} onChange={(v) => set({ preset: v })} />
         <div className="grid-2">
-          {preset === 'date' ? (
-            <TextField small label="Date" type="date" value={date} onChange={(e) => set({ date: e.target.value })} className="span-2" />
-          ) : (
-            <>
-              <TextField
-                small
-                label="Start date"
-                type="date"
-                value={preset === 'custom' ? from : (data?.range.from ?? '')}
-                onChange={(e) => set({ preset: 'custom', from: e.target.value, to: preset === 'custom' ? to : (data?.range.to ?? '') })}
-              />
-              <TextField
-                small
-                label="End date"
-                type="date"
-                value={preset === 'custom' ? to : (data?.range.to ?? '')}
-                error={invalidRange ? 'End date must be on or after the start date.' : undefined}
-                onChange={(e) => set({ preset: 'custom', to: e.target.value, from: preset === 'custom' ? from : (data?.range.from ?? '') })}
-              />
-            </>
-          )}
           <SelectField small label="Mandal name" options={MANDAL_NAMES} placeholder="All Mandals" value={get('mandal_name')} onChange={(e) => set({ mandal_name: e.target.value })} />
           <SelectField small label="Mandal type" options={MANDAL_TYPES} placeholder="All Types" value={get('mandal_type')} onChange={(e) => set({ mandal_type: e.target.value })} />
         </div>
@@ -203,7 +164,7 @@ export default function Reports() {
           </p>
         </div>
         {data && !data.include_active_in_totals && (
-          <p style={{ fontSize: 12, color: 'var(--on-dark-muted)' }}>Hours are clipped to the date range and exclude sessions still in progress.</p>
+          <p style={{ fontSize: 12, color: 'var(--on-dark-muted)' }}>Hours exclude sessions still in progress.</p>
         )}
         <div className="grid-2">
           {(['csv', 'xlsx'] as const).map((format) => (
@@ -226,7 +187,8 @@ export default function Reports() {
         <summary style={{ fontWeight: 800, fontSize: 15, cursor: 'pointer', minHeight: 32 }}>Totals by Mandal and Mandal Type</summary>
         <div className="split-desktop stack" style={{ marginTop: 12 }}>
           {[byMandal, byType].map((g, i) => (
-            <table key={i} className="table" style={{ display: 'table' }}>
+            <div key={i} className="scroll-x">
+            <table className="table" style={{ display: 'table' }}>
               <thead>
                 <tr>
                   <th scope="col">{i === 0 ? 'Mandal' : 'Type'}</th>
@@ -246,43 +208,37 @@ export default function Reports() {
                 ))}
               </tbody>
             </table>
+            </div>
           ))}
         </div>
       </details>
 
       <details className="card" open>
         <summary style={{ fontWeight: 800, fontSize: 15, cursor: 'pointer', minHeight: 32 }}>Top volunteers by seva hours</summary>
-        <p className="note" style={{ marginTop: 8 }}>
-          Follows the filters above. Pick a Mandal type to rank the volunteers in that type.
-        </p>
-        {topVolunteers.data && topVolunteers.data.items.length === 0 ? (
-          <p className="note" style={{ marginTop: 8 }}>No seva hours match these filters.</p>
-        ) : (
-          <table className="table" style={{ display: 'table', marginTop: 8 }}>
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Volunteer</th>
-                <th scope="col">Sessions</th>
-                <th scope="col">Hours</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topVolunteers.data?.items.map((v, i) => (
-                <tr key={v.key}>
-                  <td className="num">{i + 1}</td>
-                  <td>
-                    <Link to={`/admin/volunteers/${v.key}`}>{v.label}</Link>
-                  </td>
-                  <td className="num">{v.sessions ?? 0}</td>
-                  <td className="num">
-                    {v.hm} ({v.decimal_text})
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+        <div className="stack" style={{ marginTop: 10 }}>
+          <p className="note">Follows the filters above. Pick a Mandal type to rank the volunteers in that type.</p>
+          <TopCountPicker
+            label="How many volunteers to show"
+            options={TOP_COUNTS}
+            value={topCount}
+            onChange={(v) => {
+              setTopCount(v);
+              saveChoice('reports.topCount', v);
+            }}
+          />
+          {topVolunteers.isError ? (
+            <ErrorState message={errorMessage(topVolunteers.error)} onRetry={() => topVolunteers.refetch()} />
+          ) : !topVolunteers.data ? (
+            <Skeleton count={3} height={44} />
+          ) : topVolunteers.data.items.length === 0 ? (
+            <p className="note">No seva hours match these filters.</p>
+          ) : (
+            <TopVolunteerList
+              label="Top volunteers"
+              items={topVolunteers.data.items.map((v) => ({ id: v.key, name: v.label, hours: `${v.hm} (${v.decimal_text})`, sessions: v.sessions }))}
+            />
+          )}
+        </div>
       </details>
 
       <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>

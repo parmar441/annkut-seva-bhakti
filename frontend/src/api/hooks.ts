@@ -17,6 +17,7 @@ import type {
   ReviewResponse,
   Session,
   SessionList,
+  TopVolunteersResponse,
   User,
 } from './types';
 
@@ -198,6 +199,15 @@ export function useAdminTotals(params: Params) {
     queryKey: ['admin', 'totals', params],
     queryFn: () => api<GroupTotals>('/api/admin/totals', { params }),
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useTopVolunteers(params: Params) {
+  return useQuery({
+    queryKey: ['admin', 'top-volunteers', params],
+    queryFn: () => api<TopVolunteersResponse>('/api/admin/top-volunteers', { params }),
+    placeholderData: keepPreviousData,
+    refetchInterval: 60_000,
   });
 }
 
