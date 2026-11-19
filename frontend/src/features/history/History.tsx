@@ -7,11 +7,11 @@ import { ChipGroup, EmptyState, ErrorState, Pagination, Skeleton, StatusPill, ty
 import { TextField } from '../../components/Field';
 import { formatCalendarDate, formatRange, formatTime } from '../../lib/format';
 
-type Preset = 'today' | 'week' | 'month' | 'custom';
+type Preset = 'all' | 'today' | 'week' | 'custom';
 const PRESETS: Option<Preset>[] = [
+  { id: 'all', label: 'All time' },
   { id: 'today', label: 'Today' },
   { id: 'week', label: 'This week' },
-  { id: 'month', label: 'This month' },
   { id: 'custom', label: 'Custom' },
 ];
 
@@ -19,7 +19,7 @@ export default function History() {
   const [params, setParams] = useSearchParams();
   const from = params.get('from') ?? '';
   const to = params.get('to') ?? '';
-  const preset: Preset = (params.get('preset') as Preset) || (from || to ? 'custom' : 'month');
+  const preset: Preset = (params.get('preset') as Preset) || (from || to ? 'custom' : 'all');
   const page = Number(params.get('page') ?? '1') || 1;
   const invalid = !!from && !!to && from > to;
 

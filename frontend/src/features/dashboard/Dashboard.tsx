@@ -5,7 +5,7 @@ import { errorMessage } from '../../api/client';
 import { RecentRow } from '../../components/SessionCard';
 import { DurationStat, EmptyState, ErrorState, Skeleton } from '../../components/ui';
 import { TextField } from '../../components/Field';
-import { formatRange, initials, monthName, monthStartLocal, todayLocal } from '../../lib/format';
+import { formatRange, initials, monthStartLocal, todayLocal } from '../../lib/format';
 import { SevaCard } from './SevaCard';
 import { SecurityQuestionPrompt } from '../../components/Shells';
 
@@ -88,12 +88,8 @@ export default function Dashboard() {
         <SevaCard active={summary.data.active_session} skewMs={skewMs} />
       )}
 
-      <section aria-label="Seva totals" className="grid-3">
+      <section aria-label="Seva totals" className="grid-2">
         <DurationStat label="Today" duration={summary.data?.totals.today.duration} />
-        <DurationStat
-          label={summary.data?.totals.month.from ? monthName(summary.data.totals.month.from) : 'This month'}
-          duration={summary.data?.totals.month.duration}
-        />
         <DurationStat label="Lifetime" duration={summary.data?.totals.lifetime.duration} />
       </section>
 

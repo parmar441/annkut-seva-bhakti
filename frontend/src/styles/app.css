@@ -977,6 +977,48 @@ a.list-row:hover {
   color: var(--muted);
   font-weight: 600;
 }
+.top-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.top-type h3 {
+  font-size: 14px;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+.top-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.top-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  min-height: 36px;
+  border-top: 1px solid var(--surface-muted);
+}
+.top-list li:first-child {
+  border-top: 0;
+}
+.top-list .rank {
+  min-width: 1.5em;
+  color: var(--muted);
+  font-weight: 700;
+}
+.top-list .who {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.top-list .hours {
+  font-weight: 700;
+}
 .hours-bar .track {
   height: 8px;
   border-radius: 4px;

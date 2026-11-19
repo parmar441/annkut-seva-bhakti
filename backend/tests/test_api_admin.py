@@ -67,7 +67,29 @@ async def test_stats(admin_client, make_user, make_client, clock):
     assert s["hours_today"]["seconds"] == 3600  # live active session
     assert s["needs_review"]["total"] == 4 and s["needs_review"]["by_flag"]["overlap"] == 1
     edison = next(m for m in s["by_mandal"] if m["name"] == "Edison")
-    assert edison["seconds"] == 16200 + 11700 + 3600
+    assert edison["seconds"] == 16200 + 11700  # all time, completed only (live session excluded)
+    # Top volunteers per type are all time, completed sessions only (the live session is excluded).
+    top = {t["name"]: t["volunteers"] for t in s["top_by_type"]}
+    assert [t["name"] for t in s["top_by_type"]][:2] == ["Yuvti", "Kishori"]
+    assert [(v["full_name"], v["seconds"]) for v in top["Yuvti"]] == [("Anjali Patel", 16200 + 11700)]
+    assert [(v["full_name"], v["seconds"]) for v in top["Kishori"]] == [("Meera Shah", 20700)]
+    assert top["Sahid"] == [] and top["Sahradayi"] == []
+
+
+async def test_stats_top_volunteers_ranked_and_capped(admin_client, make_user, make_client, clock):
+    clock.set(NOW)
+    hours = {"v1": 1, "v2": 4, "v3": 2, "v4": 3}  # four Yuvti volunteers, one session each on Oct 22
+    for name, h in hours.items():
+        await make_user(name, full_name=name.upper(), mandal_name="Edison", mandal_type="Yuvti")
+        async with make_client() as c:
+            await c.login(name)
+            r = await c.post("/api/me/sessions", json={"clock_in": "2026-10-22T08:00", "clock_out": f"2026-10-22T{8 + h:02d}:00"})
+            assert r.status_code == 201, r.text
+    s = (await admin_client.get("/api/admin/stats")).json()
+    yuvti = next(t for t in s["top_by_type"] if t["name"] == "Yuvti")["volunteers"]
+    assert [(v["username"], v["seconds"]) for v in yuvti] == [("v2", 14400), ("v4", 10800), ("v3", 7200)]
+    r = (await admin_client.get("/api/admin/totals", params={"group_by": "volunteer", "mandal_type": "Yuvti", "limit": 2})).json()
+    assert [i["username"] for i in r["items"]] == ["v2", "v4"]
 
 
 async def test_report_filters_and_clipped_totals(admin_client, make_user, make_client, clock):

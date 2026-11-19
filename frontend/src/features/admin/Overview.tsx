@@ -4,13 +4,12 @@ import { useAdminStats } from '../../api/hooks';
 import { errorMessage } from '../../api/client';
 import { AdminHeader } from '../../components/Shells';
 import { ErrorState, HoursBar, Skeleton, StatCard } from '../../components/ui';
-import { formatDay, formatNumber, monthName } from '../../lib/format';
+import { formatDay, formatNumber } from '../../lib/format';
 import { SecurityQuestionPrompt } from '../../components/Shells';
 
 export default function Overview() {
   const stats = useAdminStats();
   const s = stats.data;
-  const month = s?.month.from ? monthName(s.month.from) : 'This month';
   const maxMandal = Math.max(1, ...(s?.by_mandal.map((m) => m.seconds) ?? [1]));
   const maxType = Math.max(1, ...(s?.by_type.map((t) => t.seconds) ?? [1]));
   const totalMandal = s?.by_mandal.reduce((n, m) => n + m.seconds, 0) ?? 0;
@@ -42,7 +41,6 @@ export default function Overview() {
             <StatCard large label="Completed sessions" value={formatNumber(s!.completed_sessions)} sub="All time" />
             <StatCard large label="Total seva hours" value={s!.total_hours.decimal_text} sub={`${s!.total_hours.hm} · all time`} />
             <StatCard large label="Hours today" value={s!.hours_today.decimal_text} sub={`${s!.volunteers_today} volunteer${s!.volunteers_today === 1 ? '' : 's'}`} />
-            <StatCard large label="Hours this month" value={s!.hours_this_month.decimal_text} sub={month} />
             <StatCard large label="On seva now" value={formatNumber(s!.on_seva_now)} sub="Active sessions" />
           </section>
 
@@ -62,8 +60,8 @@ export default function Overview() {
           )}
 
           <div className="split-desktop stack" style={{ gap: 18 }}>
-            <section aria-label={`Hours by Mandal, ${month}`} className="card pad-lg stack">
-              <h2 className="section-title sm">Hours by Mandal · {month}</h2>
+            <section aria-label="Hours by Mandal, all time" className="card pad-lg stack">
+              <h2 className="section-title sm">Hours by Mandal · All time</h2>
               {/* The server ranks categories by hours, most first. */}
               {s!.by_mandal.map((m, i) => (
                 <HoursBar
@@ -77,8 +75,8 @@ export default function Overview() {
               ))}
             </section>
 
-            <section aria-label={`Hours by Mandal type, ${month}`} className="card pad-lg stack">
-              <h2 className="section-title sm">Hours by Mandal Type · {month}</h2>
+            <section aria-label="Hours by Mandal type, all time" className="card pad-lg stack">
+              <h2 className="section-title sm">Hours by Mandal Type · All time</h2>
               {s!.by_type.map((t, i) => (
                 <HoursBar
                   key={t.name}
@@ -91,6 +89,39 @@ export default function Overview() {
               ))}
             </section>
           </div>
+
+          <section aria-label="Top volunteers by Mandal type, all time" className="card pad-lg stack">
+            <div className="row" style={{ justifyContent: 'space-between', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+              <h2 className="section-title sm">Top volunteers by Mandal Type · All time</h2>
+              <Link to="/admin/reports?preset=all" style={{ fontSize: 13, fontWeight: 700 }}>
+                Full ranking
+              </Link>
+            </div>
+            <div className="top-types">
+              {s!.top_by_type.map((t) => (
+                <div key={t.name} className="top-type">
+                  <h3>{t.name}</h3>
+                  {t.volunteers.length ? (
+                    <ol className="top-list">
+                      {t.volunteers.map((v, i) => (
+                        <li key={v.id}>
+                          <span className="rank tabular" aria-hidden="true">
+                            {i + 1}
+                          </span>
+                          <Link to={`/admin/volunteers/${v.id}`} className="who">
+                            {v.full_name}
+                          </Link>
+                          <span className="tabular hours">{v.decimal_text}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="note">No seva hours yet.</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
         </>
       )}
     </div>

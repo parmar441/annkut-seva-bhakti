@@ -68,8 +68,14 @@ async def stats(db: AsyncIOMotorDatabase = Depends(db_dep)):
     today = await range_total(db, {}, a_today, b_today, now, include_active=True)
     a_month, b_month, month_info = resolve_range(now, preset="month")
     month = await range_total(db, {}, a_month, b_month, now, include_active=True)
-    by_mandal = await grouped_totals(db, {}, a_month, b_month, now, True, lambda d: d["mandal_name"])
-    by_type = await grouped_totals(db, {}, a_month, b_month, now, True, lambda d: d["mandal_type"])
+    # Category totals are all time from completed sessions, matching total_hours.
+    by_mandal = await grouped_totals(db, completed, None, None, now, False, lambda d: d["mandal_name"])
+    by_type = await grouped_totals(db, completed, None, None, now, False, lambda d: d["mandal_type"])
+    # Top volunteers are ranked on all-time hours from completed sessions, like total_hours.
+    by_type_volunteer = await grouped_totals(
+        db, completed, None, None, now, False, lambda d: (d["mandal_type"], d["user_id"])
+    )
+    top_by_type = await top_volunteers_by_type(db, by_type_volunteer, TOP_VOLUNTEERS_PER_TYPE)
 
     on_seva_now = await db.seva_sessions.count_documents({"status": SessionStatus.ACTIVE.value})
     review_total = await db.seva_sessions.count_documents({"needs_review": True})
@@ -99,6 +105,36 @@ async def stats(db: AsyncIOMotorDatabase = Depends(db_dep)):
             ({"name": t.value, **duration_view(by_type.get(t.value, empty)["seconds"])} for t in MandalType),
             key=lambda x: -x["seconds"],
         ),
+        # All time: types ranked by their total hours, each listing its top volunteers, most hours first.
+        "top_by_type": sorted(
+            ({"name": t.value, "volunteers": top_by_type.get(t.value, [])} for t in MandalType),
+            key=lambda x: -by_type.get(x["name"], empty)["seconds"],
+        ),
+    }
+
+
+TOP_VOLUNTEERS_PER_TYPE = 3
+
+
+async def volunteer_names(db: AsyncIOMotorDatabase, ids) -> dict:
+    return {u["_id"]: u async for u in db.users.find({"_id": {"$in": list(ids)}}, {"full_name": 1, "username": 1})}
+
+
+async def top_volunteers_by_type(db: AsyncIOMotorDatabase, grouped: dict, limit: int) -> dict[str, list[dict]]:
+    """grouped is keyed by (mandal_type, user_id). Returns the top `limit` volunteers per type with hours."""
+    per_type: dict[str, list[tuple]] = {}
+    for (mtype, uid), v in grouped.items():
+        if v["seconds"] > 0:
+            per_type.setdefault(mtype, []).append((uid, v))
+    top = {t: sorted(rows, key=lambda r: -r[1]["seconds"])[:limit] for t, rows in per_type.items()}
+    users = await volunteer_names(db, {uid for rows in top.values() for uid, _ in rows})
+    return {
+        t: [
+            {"id": str(uid), "full_name": users[uid]["full_name"] if uid in users else "Unknown",
+             "username": users.get(uid, {}).get("username"), "sessions": v["sessions"], **duration_view(v["seconds"])}
+            for uid, v in rows
+        ]
+        for t, rows in top.items()
     }
 
 
@@ -286,6 +322,7 @@ async def export_report(
 @router.get("/totals")
 async def totals(
     group_by: Literal["volunteer", "mandal_name", "mandal_type", "day", "week", "month"] = "mandal_name",
+    limit: int | None = Query(None, ge=1, le=500, description="Volunteer grouping only: return just the top N by hours."),
     filters: ReportFilters = Depends(report_filters),
     db: AsyncIOMotorDatabase = Depends(db_dep),
 ):
@@ -300,7 +337,9 @@ async def totals(
 
     if group_by == "volunteer":
         grouped = await grouped_totals(db, match, a, b, now, filters.include_active, lambda d: d["user_id"])
-        users = {u["_id"]: u async for u in db.users.find({"_id": {"$in": list(grouped)}}, {"full_name": 1, "username": 1})}
+        ranked = sorted(grouped.items(), key=lambda kv: -kv[1]["seconds"])
+        grouped = dict(ranked[:limit] if limit else ranked)
+        users = await volunteer_names(db, grouped)
         items = [
             {"key": str(k), "label": users[k]["full_name"] if k in users else "Unknown",
              "username": users.get(k, {}).get("username"), "sessions": v["sessions"], **duration_view(v["seconds"])}

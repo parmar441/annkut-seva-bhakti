@@ -11,11 +11,11 @@ import { ChipGroup, EmptyState, ErrorState, Pagination, Segmented, Skeleton, Sta
 import { MANDAL_NAMES, MANDAL_TYPES } from '../../lib/enums';
 import { formatCalendarDate, formatTimeCompact, formatTime } from '../../lib/format';
 
-type Preset = 'today' | 'week' | 'month' | 'date' | 'custom';
+type Preset = 'all' | 'today' | 'week' | 'date' | 'custom';
 const PRESETS: Option<Preset>[] = [
+  { id: 'all', label: 'All time' },
   { id: 'today', label: 'Today' },
   { id: 'week', label: 'This week' },
-  { id: 'month', label: 'This month' },
   { id: 'date', label: 'Specific date' },
   { id: 'custom', label: 'Custom' },
 ];
@@ -26,6 +26,8 @@ const STATUSES: Option<Status>[] = [
   { id: 'completed', label: 'Done' },
   { id: 'flagged', label: 'Flagged' },
 ];
+const TOP_VOLUNTEERS = 10;
+
 const SORTS = [
   { id: 'date', label: 'Seva date' },
   { id: 'name', label: 'Volunteer name' },
@@ -82,7 +84,7 @@ function ReportCard({ r }: { r: AdminSession }) {
 export default function Reports() {
   const [params, setParams] = useSearchParams();
   const get = (k: string, d = '') => params.get(k) ?? d;
-  const preset = get('preset', 'month') as Preset;
+  const preset = get('preset', 'all') as Preset;
   const status = get('status', 'all') as Status;
   const sort = get('sort', 'date');
   const order = get('order', 'desc') as 'asc' | 'desc';
@@ -132,6 +134,7 @@ export default function Reports() {
   const report = useAdminReport({ ...filters, sort, order, page, page_size: pageSize });
   const byMandal = useAdminTotals({ ...filters, group_by: 'mandal_name' });
   const byType = useAdminTotals({ ...filters, group_by: 'mandal_type' });
+  const topVolunteers = useAdminTotals({ ...filters, group_by: 'volunteer', limit: TOP_VOLUNTEERS });
   const data = report.data;
 
   const toast = useToast();
@@ -245,6 +248,41 @@ export default function Reports() {
             </table>
           ))}
         </div>
+      </details>
+
+      <details className="card" open>
+        <summary style={{ fontWeight: 800, fontSize: 15, cursor: 'pointer', minHeight: 32 }}>Top volunteers by seva hours</summary>
+        <p className="note" style={{ marginTop: 8 }}>
+          Follows the filters above. Pick a Mandal type to rank the volunteers in that type.
+        </p>
+        {topVolunteers.data && topVolunteers.data.items.length === 0 ? (
+          <p className="note" style={{ marginTop: 8 }}>No seva hours match these filters.</p>
+        ) : (
+          <table className="table" style={{ display: 'table', marginTop: 8 }}>
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Volunteer</th>
+                <th scope="col">Sessions</th>
+                <th scope="col">Hours</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topVolunteers.data?.items.map((v, i) => (
+                <tr key={v.key}>
+                  <td className="num">{i + 1}</td>
+                  <td>
+                    <Link to={`/admin/volunteers/${v.key}`}>{v.label}</Link>
+                  </td>
+                  <td className="num">{v.sessions ?? 0}</td>
+                  <td className="num">
+                    {v.hm} ({v.decimal_text})
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </details>
 
       <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>

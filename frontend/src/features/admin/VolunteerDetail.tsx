@@ -31,7 +31,7 @@ export default function VolunteerDetail() {
         <Link to="/admin/volunteers">Back to volunteers</Link>
       </div>
     );
-  const { user, lifetime, this_month, active_session, needs_review } = detail.data;
+  const { user, lifetime, active_session, needs_review } = detail.data;
 
   return (
     <div className="page tight">
@@ -71,9 +71,8 @@ export default function VolunteerDetail() {
         </p>
       </section>
       <PasswordResetCard user={user} isSelf={user.id === me.data?.id} />
-      <section aria-label="Totals" className="grid-3">
+      <section aria-label="Totals" className="grid-2">
         <DurationStat label="Lifetime" duration={lifetime.duration} />
-        <DurationStat label="This month" duration={this_month.duration} />
         <StatCard label="Needs review" value={needs_review} sub={active_session ? 'On seva now' : `${lifetime.sessions} sessions`} />
       </section>
 

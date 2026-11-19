@@ -149,6 +149,13 @@ export interface NamedHours extends Duration {
   name: string;
 }
 
+export interface TopVolunteer extends Duration {
+  id: string;
+  full_name: string;
+  username: string | null;
+  sessions: number;
+}
+
 export interface AdminStats {
   now: string;
   month: RangeInfo;
@@ -164,6 +171,8 @@ export interface AdminStats {
   password_reset_requests: number;
   by_mandal: NamedHours[];
   by_type: NamedHours[];
+  /** All time, completed sessions: types ranked by hours, each with its top volunteers, most hours first. */
+  top_by_type: { name: string; volunteers: TopVolunteer[] }[];
 }
 
 export interface AdminUser extends User {
