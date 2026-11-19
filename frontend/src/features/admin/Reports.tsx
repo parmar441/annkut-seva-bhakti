@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowDown, ArrowUp, Download } from 'lucide-react';
-import { useAdminReport, useAdminTotals } from '../../api/hooks';
+import { useAdminReport } from '../../api/hooks';
 import { downloadFile, errorMessage } from '../../api/client';
 import { useToast } from '../../components/Toast';
 import type { AdminSession } from '../../api/types';
@@ -18,16 +18,6 @@ const STATUSES: Option<Status>[] = [
   { id: 'completed', label: 'Done' },
   { id: 'flagged', label: 'Flagged' },
 ];
-
-const SORTS = [
-  { id: 'date', label: 'Seva date' },
-  { id: 'name', label: 'Volunteer name' },
-  { id: 'username', label: 'Username' },
-  { id: 'mandal_name', label: 'Mandal name' },
-  { id: 'mandal_type', label: 'Mandal type' },
-  { id: 'duration', label: 'Duration' },
-  { id: 'status', label: 'Status' },
-] as const;
 
 function useDebounced<T>(value: T, ms = 300) {
   const [v, setV] = useState(value);
@@ -111,8 +101,6 @@ export default function Reports() {
   }, [params]);
 
   const report = useAdminReport({ ...filters, sort, order, page, page_size: pageSize });
-  const byMandal = useAdminTotals({ ...filters, group_by: 'mandal_name' });
-  const byType = useAdminTotals({ ...filters, group_by: 'mandal_type' });
   const data = report.data;
 
   const toast = useToast();
@@ -178,44 +166,7 @@ export default function Reports() {
         </div>
       </section>
 
-      <details className="card">
-        <summary style={{ fontWeight: 800, fontSize: 15, cursor: 'pointer', minHeight: 32 }}>Totals by Mandal and Mandal Type</summary>
-        <div className="split-desktop stack" style={{ marginTop: 12 }}>
-          {[byMandal, byType].map((g, i) => (
-            <div key={i} className="scroll-x">
-            <table className="table" style={{ display: 'table' }}>
-              <thead>
-                <tr>
-                  <th scope="col">{i === 0 ? 'Mandal' : 'Type'}</th>
-                  <th scope="col">Sessions</th>
-                  <th scope="col">Hours</th>
-                </tr>
-              </thead>
-              <tbody>
-                {g.data?.items.map((it) => (
-                  <tr key={it.key}>
-                    <td>{it.label}</td>
-                    <td className="num">{it.sessions ?? 0}</td>
-                    <td className="num">
-                      {it.hm} ({it.decimal_text})
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            </div>
-          ))}
-        </div>
-      </details>
-
-      <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-        <SelectField
-          small
-          label="Sort by"
-          options={SORTS.map((s) => s.label)}
-          value={SORTS.find((s) => s.id === sort)?.label}
-          onChange={(e) => set({ sort: SORTS.find((s) => s.label === e.target.value)?.id ?? 'date' })}
-        />
+      <div className="row" style={{ justifyContent: 'flex-end', flexWrap: 'wrap', gap: 10 }}>
         <SelectField small label="Per page" options={['20', '50', '100']} value={String(pageSize)} onChange={(e) => set({ page_size: e.target.value })} />
       </div>
 
